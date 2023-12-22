@@ -1,0 +1,7 @@
+__pycache__
+.cache/
+src/stylegan3/out
+src/stylegan3/_screenshots
+core
+skygan.o*
+skygan.e*

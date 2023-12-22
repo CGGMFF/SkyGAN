@@ -1,0 +1,82 @@
+version: "3.8"
+services:
+  gpu-jupyter:
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['1']
+            capabilities: [gpu]
+
+    ports:
+      - 0.0.0.0:48888:8888
+      - 0.0.0.0:46006:6006
+    volumes:
+      - ./src:/home/jovyan/work
+      - /projects/SkyGAN/:/projects/SkyGAN/
+      - /local/${USER}/:/local
+    environment:
+      GRANT_SUDO: "yes"
+      JUPYTER_ENABLE_LAB: "yes"
+      NB_UID: ${JUPYTER_UID:-1000}
+      NB_GID: ${JUPYTER_GID:-1000}
+      CACHE_DIR: "/local"
+    # enable sudo permissions
+    user:
+      ${JUPYTER_UID}:${JUPYTER_GID}
+    restart: always
+
+  stylegan3: &stylegan3
+    build:
+      context: ./
+      dockerfile: ./src/stylegan3/Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['0']
+            capabilities: [gpu, compute, graphics]
+    shm_size: '64gb'
+    volumes:
+      - ./src/stylegan3:/scratch
+      - ./src/stylegan3/home:/scratch/home
+      - ./ArPragueSkyModelGroundXYZ:/scratch/ArPragueSkyModelGroundXYZ:ro
+      - /projects/SkyGAN/:/projects/SkyGAN/
+      - /local/${USER}/:/local
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/.Xauthority:/scratch/home/.Xauthority
+    network_mode: "host"
+    environment:
+      HOME: "/scratch/home" # TODO: remove if not necessary - this causes root-owned (if $UID/GID are not defined) .bash_history to be created there when using bash
+      CACHE_DIR: "/local"
+      #PYTORCH_CUDA_ALLOC_CONF: "max_split_size_mb:1024"
+      DISPLAY: $DISPLAY
+      PYTHONPATH: "/workspace" # needed so that Python finds the built Python 'sky_image_generator' module
+      DNNLIB_CACHE_DIR: "/local"
+    user: $UID:$GID # add with: echo "export UID; export GID=$(id -g)" >> ~/.bashrc
+    working_dir: /scratch
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    command: >
+      python train.py
+      --data /projects/SkyGAN/clouds_fisheye/auto_processed/auto_processed_20230405_1727.csv
+      --resolution=256 --gamma=2
+      --cfg=stylegan3-t --gpus=1
+      --batch=32 --batch-gpu=4 --tick=1 --snap=10
+      --outdir=/local/stylegan3-encoder
+      --metrics=fid50k_full
+      --mirror=0
+      --aug-ada-xflip=0
+      --aug-ada-rotate90=0
+      --aug-ada-xint=0
+      --aug-ada-scale=0
+      --aug-ada-rotate=1
+      --aug-ada-aniso=0
+      --aug-ada-xfrac=0
+      --normalize-azimuth=True
+      --use-encoder=True
+    #  --resume /local/k00103t_network-snapshot-008733.pkl
+    # disable metrics for faster training during debugging
