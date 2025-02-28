@@ -3,6 +3,7 @@
 This repository contains the code for our paper [**SkyGAN: Realistic Cloud Imagery for Image-based Lighting**](https://doi.org/10.1111/cgf.14990).
 
 ![teaser image](./SkyGAN_teaser_CGF.jpg)
+
 *SkyGAN generates cloudy sky images from a user-chosen sun position that are readily usable as an environment map in any rendering system. We leverage an existing [clear sky model](https://cgg.mff.cuni.cz/publications/skymodel-2021/) to produce the input to our neural network which enhances the sky with clouds, haze and horizons learned from real photographs.*
 
 
@@ -20,7 +21,19 @@ Important files/directories:
 - ArPragueSkyModelGroundXYZ, sky_image_generator.*: the code and fitted data of the XYZ version of the Prague sky model used for generating a clear sky image passed to our network
 
 ## Downloads
-The data-processing scripts are available in a separate repository TODO. The dataset and snapshots TODO.
+The **data-processing scripts** for converting captured RAW images into StyleGAN-compatible format are available in a [separate repository](https://github.com/CGGMFF/SkyGAN-data).
+
+The **SkyGAN dataset** is available for non-commercial use under the CC-BY-NC-SA 4.0 [license](http://mustang.ms.mff.cuni.cz/SkyGAN/auto_processed/LICENSE.txt). Contact us to discuss other potential arrangements.
+
+> SkyGAN dataset © 2019-2023 by Tobias Rittig, Štěpán Hojdar, Jaroslav Křivánek, Ronan Cailleau, Charles University, Faculty of Mathematics and Physics and Chaos Czech a.s. is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+To get the dataset, place the following two files ([auto_processed_20230405_1727.csv](http://mustang.ms.mff.cuni.cz/SkyGAN/auto_processed/auto_processed_20230405_1727.csv) and [download.sh](http://mustang.ms.mff.cuni.cz/SkyGAN/auto_processed/download.sh)) into the same folder, then review and run the download script. You can choose to download only a part of the dataset, e.g. for training SkyGAN, you only need the "stereographic up EXR" images (~83 GB) and save more than 1.1TB of bandwidth and space by not downloading the *latlong*s and JPEGs.
+
+**Trained network snapshots** producing the results presented in the paper (each ~550MB):
+ - 👉 [O ("Ours")](http://mustang.ms.mff.cuni.cz/SkyGAN/snapshots/k00133t_Ours_FID14.6%4028.9M_network-snapshot-002343.pkl), a version trained with all our modifications enabled. This includes the encoded clear sky images, the reconstruction loss (B_C) and the training on azimuth-marginalised images (B_A). 👈
+ - [B (Baseline)](http://mustang.ms.mff.cuni.cz/SkyGAN/snapshots/k00134t_Baseline_FID25.4%4028.5M_network-snapshot-003665.pkl), a baseline which is trained from scratch without our encoder and clear sky reconstruction loss. This corresponds to a standard StyleGAN3-T with support for HDR values.
+ - [B_A ("Aug")](http://mustang.ms.mff.cuni.cz/SkyGAN/snapshots/k00136t_Aug_FID20.8%4029.2M_network-snapshot-002203.pkl), the same network architecture as B, but trained on azimuth-marginalised images.
+ - [B_C ("Clear")](http://mustang.ms.mff.cuni.cz/SkyGAN/snapshots/k00135t_Clear_FID21.5%4026.5M_network-snapshot-000641.pkl), the Baseline network but including the autoencoder task for the clear sky.
 
 ## Usage
 ### Installation
@@ -33,7 +46,7 @@ conda activate stylegan3
   - To avoid long waiting at "Solving Environment step", [switching to the libmamba solver](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) is advisable.
 
 2. Make sure gen_images.py (and visualizer.py?) from the original StyleGAN3 code run correctly (optional but useful for debugging)
-  - clone the original [stylegan3](https://github.com/nvlabs/stylegan3) repository, change into its directory, then run the following:
+  - clone the original [stylegan3](https://github.com/nvlabs/stylegan3) repository, change into its directory, then verify everything works by running the following:
 
 ```
 python gen_images.py --outdir=out --trunc=1 --seeds=2,1 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-r-afhqv2-512x512.pkl
@@ -58,7 +71,7 @@ Generate a few images using a pre-trained network:
 CACHE_DIR=/tmp OPENCV_IO_ENABLE_OPENEXR=1 python gen_images.py --network /home/user/Downloads/k00133t_Ours_FID14.6@28.9M_network-snapshot-002343.pkl --normalize-azimuth=True --seeds='elevations+1000' --outdir=out --azimuth=180 --elevations=10,70
 ```
   - Replace `/home/user/Downloads/k00133t_Ours_FID14.6@28.9M_network-snapshot-002343.pkl` with a path to a pre-trained network weights.
-  - The generated skies with clouds are named `fake_seed*.png|exr`; `clear_rec_*` outputs are the clear sky images as reconstructed by the network.
+  - The generated skies with clouds are named `fake_seed*.png|exr`; the `clear_rec_*` outputs are the clear sky images as reconstructed by the network.
   - To generate images for a custom seed(s), change the `'elevations+1000'` (`--seeds` value) to a number, list of numbers or a range. Choose only one sun elevation per script run (and a different `outdir`) to avoid overwriting previously generated images.
 
 Run the interactive visualizer, then select a training snapshot (.pkl) using the `Browse...` button on top of the window (tip: checking `Force FP32` makes it run faster, at least in WSL2 on Windows 10 with one 1080Ti)
