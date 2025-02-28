@@ -91,14 +91,15 @@ If you find this work, the dataset or processing scripts useful in your research
 author = {Mirbauer, Martin and Rittig, Tobias and Iser, Tomáš and Křivánek, Jaroslav and Šikudová, Elena},
 title = {SkyGAN: Realistic Cloud Imagery for Image-based Lighting},
 journal = {Computer Graphics Forum},
-volume = {n/a},
-number = {n/a},
+volume = {43},
+number = {1},
 pages = {e14990},
 keywords = {modelling; natural phenomena, rendering; image-based rendering, rendering; atmospheric effects},
 doi = {https://doi.org/10.1111/cgf.14990},
 url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.14990},
 eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/cgf.14990},
-abstract = {Abstract Achieving photorealism when rendering virtual scenes in movies or architecture visualizations often depends on providing a realistic illumination and background. Typically, spherical environment maps serve both as a natural light source from the Sun and the sky, and as a background with clouds and a horizon. In practice, the input is either a static high-resolution HDR photograph manually captured on location in real conditions, or an analytical clear sky model that is dynamic, but cannot model clouds. Our approach bridges these two limited paradigms: a user can control the sun position and cloud coverage ratio, and generate a realistically looking environment map for these conditions. It is a hybrid data-driven analytical model based on a modified state-of-the-art GAN architecture, which is trained on matching pairs of physically-accurate clear sky radiance and HDR fisheye photographs of clouds. We demonstrate our results on renders of outdoor scenes under varying time, date and cloud covers. Our source code and a dataset of 39 000 HDR sky images are publicly available at https://github.com/CGGMFF/SkyGAN.}
+abstract = {Abstract Achieving photorealism when rendering virtual scenes in movies or architecture visualizations often depends on providing a realistic illumination and background. Typically, spherical environment maps serve both as a natural light source from the Sun and the sky, and as a background with clouds and a horizon. In practice, the input is either a static high-resolution HDR photograph manually captured on location in real conditions, or an analytical clear sky model that is dynamic, but cannot model clouds. Our approach bridges these two limited paradigms: a user can control the sun position and cloud coverage ratio, and generate a realistically looking environment map for these conditions. It is a hybrid data-driven analytical model based on a modified state-of-the-art GAN architecture, which is trained on matching pairs of physically-accurate clear sky radiance and HDR fisheye photographs of clouds. We demonstrate our results on renders of outdoor scenes under varying time, date and cloud covers. Our source code and a dataset of 39 000 HDR sky images are publicly available at https://github.com/CGGMFF/SkyGAN.},
+year = {2024}
 }
 ```
 
@@ -106,11 +107,12 @@ abstract = {Abstract Achieving photorealism when rendering virtual scenes in mov
 SkyGAN will work on Intel GPUs (or other SYCL-compatible accelerators). See the *StyleGAN3 to SYCL porting* progress in [this repository](https://github.com/martinmCGG/stylegan3).
 
 ### TODOs
- - [] finish usage instructions (how to run inference - copy from the PC in S126)
- - [] test if training+inference still work after code cleanup - WIP
- - [] link to trained pickles!
- - [] link to data processing scripts
- - [] link to dataset (academic torrents + Transmission on amnesia-compute?)
- - [] update citation when volume+number are known
- - [] maybe link to publication page on CGG website?
- - [] StyleGAN3 to SYCL porting: merge to SkyGAN when finished, maybe until then also add a guide how to merge the current version
+ - [x] finish usage instructions (how to run inference - copy from the PC in S126)
+ - [x] test if inference still works after code cleanup
+ - [ ] test if training still works after code cleanup
+ - [x] link to trained pickles
+ - [x] link to data processing scripts
+ - [x] link to dataset
+ - [x] update citation when volume+number are known
+ - [ ] maybe link to publication page on CGG website?
+ - [ ] StyleGAN3 to SYCL porting: merge to SkyGAN when finished, maybe until then also add a guide how to merge the current version
