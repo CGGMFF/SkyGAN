@@ -1,3 +1,72 @@
+# StyleGAN3 on SYCL
+
+ - StyleGAN3 codebase running on SYCL instead of CUDA
+ - tested on Intel Arc A770 GPU (locally) and Data Center GPU Max 1100 at [Intel Developer Cloud](https://devcloud.intel.com/oneapi/home/)
+ - ported the kernels `bias_act`, `upfirdn2d` and `filtered_lrelu` from CUDA to SYCL
+ - performance tuning in progress
+
+## Usage
+```
+git clone https://github.com/martinmCGG/stylegan3 && cd stylegan3
+```
+
+### In Docker
+```
+./Dockerfile_generate.sh && sudo IMAGE_NAME=stylegan3_ipex ./build.sh && sudo docker run --rm -it -v $HOME/.cache/dnnlib/downloads:/root/.cache/dnnlib/downloads:ro -v $HOME/stylegan3:/app -w /app stylegan3_ipex bash
+
+or directly
+
+./Dockerfile_generate.sh && sudo IMAGE_NAME=stylegan3_ipex ./build.sh && sudo docker run --rm -it --device=/dev/dri --ipc=host -v $HOME/.cache/dnnlib/downloads:/root/.cache/dnnlib/downloads:ro -v $HOME/stylegan3:/app -w /app stylegan3_ipex bash -i -c 'python gen_video.py --output=benchmark.mp4 --trunc=1 --seeds=2,5 --w-frames=32 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-t-afhqv2-512x512.pkl'
+
+or (with caching of the built module)
+
+./Dockerfile_generate.sh && sudo IMAGE_NAME=stylegan3_ipex ./build.sh && sudo docker run --rm -it --device=/dev/dri --ipc=host -v cache:/root/.cache -v $HOME/.cache/dnnlib/downloads:/root/.cache/dnnlib/downloads:ro -v $HOME/stylegan3:/app -w /app stylegan3_ipex bash -i -c 'python gen_video.py --output=benchmark.mp4 --trunc=1 --seeds=2,5 --w-frames=32 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-t-afhqv2-512x512.pkl'
+
+or run via script
+
+./Dockerfile_generate.sh && sudo IMAGE_NAME=stylegan3_ipex ./build.sh && sudo docker run --rm -it --device=/dev/dri --ipc=host -v cache:/root/.cache -v $HOME/.cache/dnnlib/downloads:/root/.cache/dnnlib/downloads:ro -v $HOME/stylegan3:/app -w /app stylegan3_ipex bash -i ./bench3.sh --skip-conda
+```
+
+### Native
+```
+# install conda if not installed yet (https://docs.conda.io/projects/miniconda/en/latest/miniconda-install.html)
+
+# install dependencies (run only the first time)
+conda env create -f environment_intel.yml
+# In case you encounter "Could not find a version that satisfies the requirement torch==2.0.1a0",
+#  - clean up the failed environemnt creation with `conda env remove --name stylegan3`
+#  - re-try the installation with "environment_intel_fullurl.yml" instead (https://github.com/intel/intel-extension-for-pytorch/issues/412)
+
+# switch to a node with a GPU, if running on a different computer (e.g. a head node of a cluster using a SLURM scheduler), otherwise skip
+srun --pty bash
+
+# prepare environment
+conda activate stylegan3
+source /opt/intel/oneapi/setvars.sh  # tested with 2023.2.0
+
+# run inference using an existing network (note: the first run will take a couple of minutes to compile the kernels and to download the network):
+# generate images of animal faces (512x512)
+python gen_images.py --outdir=out --trunc=1 --seeds=1-10 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-r-afhqv2-512x512.pkl
+# or human faces (1024x1024)
+python gen_images.py --outdir=out --trunc=1 --seeds=1-10 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-t-ffhqu-1024x1024.pkl
+# or a video interpolating between the seeds
+python gen_video.py --output=stylegan3-r-afhqv2_512_1-2.mp4 --trunc=1 --seeds=1-2 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-r-afhqv2-512x512.pkl
+python gen_video.py --output=stylegan3-t-ffhqu-1024_1-5.mp4 --trunc=1 --seeds=1-5 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-t-ffhqu-1024x1024.pkl
+# or choose other pre-trained models listed in the readme below
+
+conda activate stylegan3 && source /opt/intel/oneapi/setvars.sh && python gen_video.py --output=benchmark.mp4 --trunc=1 --seeds=2,5 --w-frames=32 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-t-afhqv2-512x512.pkl
+
+# In case of multiple GPUs (e.g. if you also have an integrated GPU), you may want to explicitly tell SYCL to use only the dedicated GPU - find ONEAPI_DEVICE_SELECTOR that matches the correct device
+ONEAPI_DEVICE_SELECTOR='ext_oneapi_level_zero:0' sycl-ls  # this prints the detected device for a given selector
+
+# training is not recommended: runs out of memory on Arc (16GB VRAM); runs on Max 1100 GPU (but very slowly: ~1.25h per 1000 images)
+python train.py --outdir=~/training-runs --cfg=stylegan3-t --data=$HOME/afhq_v2.zip --gpus=1 --batch=4 --gamma=8.2 --mirror=1 --metrics=none --snap=1 --tick=1
+```
+---
+
+This is a fork of [NVLabs' official implementation of StyleGAN3](https://github.com/NVlabs/stylegan3), see its README below.
+
+
 ## Alias-Free Generative Adversarial Networks (StyleGAN3)<br><sub>Official PyTorch implementation of the NeurIPS 2021 paper</sub>
 
 ![Teaser image](./docs/stylegan3-teaser-1920x1006.png)
@@ -58,6 +127,7 @@ While new generator approaches enable new media synthesis capabilities, they may
 * GCC 7 or later (Linux) or Visual Studio (Windows) compilers.  Recommended GCC version depends on CUDA version, see for example [CUDA 11.4 system requirements](https://docs.nvidia.com/cuda/archive/11.4.1/cuda-installation-guide-linux/index.html#system-requirements).
 * Python libraries: see [environment.yml](./environment.yml) for exact library dependencies.  You can use the following commands with Miniconda3 to create and activate your StyleGAN3 Python environment:
   - `conda env create -f environment.yml`
+  - or `conda env create -f environment_intel.yml` to use an Intel GPU
   - `conda activate stylegan3`
 * Docker users:
   - Ensure you have correctly installed the [NVIDIA container runtime](https://docs.docker.com/config/containers/resource_constraints/#gpu).

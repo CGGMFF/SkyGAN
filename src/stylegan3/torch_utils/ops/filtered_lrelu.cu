@@ -6,20 +6,14 @@
 // distribution of this software and related documentation without an express
 // license agreement from NVIDIA CORPORATION is strictly prohibited.
 
+#include <torch/extension.h>
 #include <c10/util/Half.h>
+#include <ATen/cuda/CUDAContext.h>
 #include "filtered_lrelu.h"
 #include <cstdint>
 
 //------------------------------------------------------------------------
 // Helpers.
-
-enum // Filter modes.
-{
-    MODE_SUSD = 0,  // Separable upsampling, separable downsampling.
-    MODE_FUSD = 1,  // Full upsampling, separable downsampling.
-    MODE_SUFD = 2,  // Separable upsampling, full downsampling.
-    MODE_FUFD = 3,  // Full upsampling, full downsampling.
-};
 
 template <class T> struct InternalType;
 template <> struct InternalType<double>
@@ -1210,75 +1204,79 @@ static __global__ void filtered_lrelu_act_kernel(filtered_lrelu_act_kernel_param
     }
 }
 
-template <class T, bool signWrite, bool signRead> void* choose_filtered_lrelu_act_kernel(void)
-{
-    return (void*)filtered_lrelu_act_kernel<T, signWrite, signRead>;
-}
-
 //------------------------------------------------------------------------
-// CUDA kernel selection.
+// CUDA kernel launchers.
 
-template <class T, class index_t, bool signWrite, bool signRead> filtered_lrelu_kernel_spec choose_filtered_lrelu_kernel(const filtered_lrelu_kernel_params& p, int sharedKB)
+template <class T, class index_t, bool signWrite, bool signRead, int SH, int MODE, int U, int FU, int D, int FD, int TW, int TH, int W, int XR, int WS> // TODO: XR and WS could be just booleans and the actual value passed as a parameter - to reduce the number of template instantiations/specializations (but then duplicate specializations would need to be avoided)
+void run_filtered_lrelu_kernel(filtered_lrelu_kernel_params& p)
 {
-    filtered_lrelu_kernel_spec s = { 0 };
+    // Launch CUDA kernel.
+    void* args[] = {&p};
+    int bx = W * 32;
+    int gx = (p.yShape.x - 1) / TW + 1;
+    int gy = (p.yShape.y - 1) / TH + 1;
+    int gz = p.yShape.z * p.yShape.w;
 
-    // Return the first matching kernel.
-#define CASE(SH, U, FU, D, FD, MODE, TW, TH, W, XR, WS) \
-    if (sharedKB >= SH) \
-    if ((p.fuShape.y == 0 && (MODE == MODE_SUSD || MODE == MODE_SUFD)) || (p.fuShape.y > 0 && (MODE == MODE_FUSD || MODE == MODE_FUFD))) \
-    if ((p.fdShape.y == 0 && (MODE == MODE_SUSD || MODE == MODE_FUSD)) || (p.fdShape.y > 0 && (MODE == MODE_SUFD || MODE == MODE_FUFD))) \
-    if (p.up == U && p.fuShape.x <= FU && p.fuShape.y <= FU && p.down == D && p.fdShape.x <= FD && p.fdShape.y <= FD) \
-    { \
-        static_assert((D*TW % 4) == 0, "down * tileWidth must be divisible by 4"); \
-        static_assert(FU % U == 0, "upscaling filter size must be multiple of upscaling factor"); \
-        static_assert(FD % D == 0, "downscaling filter size must be multiple of downscaling factor"); \
-        s.setup = (void*)setup_filters_kernel; \
-        s.exec = (void*)filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>; \
-        s.tileOut = make_int2(TW, TH); \
-        s.numWarps = W; \
-        s.xrep = XR; \
-        s.dynamicSharedKB = (SH == 48) ? 0 : SH; \
-        return s; \
+    // Repeat multiple horizontal tiles in a CTA?
+    if (XR)
+    {
+        p.tilesXrep = XR;
+        p.tilesXdim = gx;
+       
+        gx = (gx + p.tilesXrep - 1) / p.tilesXrep;
+        std::swap(gx, gy);
+    }
+    else
+    {
+        p.tilesXrep = 0;
+        p.tilesXdim = 0;
     }
 
-    // Launch parameters for various kernel specializations.
-    // Small filters must be listed before large filters, otherwise the kernel for larger filter will always match first.
-    // Kernels that use more shared memory must be listed before those that use less, for the same reason.
+    // Launch filter setup kernel.
+    AT_CUDA_CHECK(cudaLaunchKernel((void*)&setup_filters_kernel, 1, 1024, args, 0, at::cuda::getCurrentCUDAStream()));
 
-    CASE(/*sharedKB*/48, /*up,fu*/1,1,  /*down,fd*/1,1,  /*mode*/MODE_FUFD, /*tw,th,warps,xrep,wskip*/64,  178, 32,  0,  0) // 1t-upf1-downf1
-    CASE(/*sharedKB*/48, /*up,fu*/2,8,  /*down,fd*/1,1,  /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/152, 95,  16,  0,  0) // 4t-ups2-downf1
-    CASE(/*sharedKB*/48, /*up,fu*/1,1,  /*down,fd*/2,8,  /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/56,  22,  16,  0,  0) // 4t-upf1-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,8,  /*down,fd*/2,8,  /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/56,  29,  16,  11, 0) // 4t-ups2-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,8,  /*down,fd*/2,8,  /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/60,  28,  16,  0,  0) // 4t-upf2-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,8,  /*down,fd*/2,8,  /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/56,  28,  16,  0,  0) // 4t-ups2-downf2
-    CASE(/*sharedKB*/48, /*up,fu*/4,16, /*down,fd*/2,8,  /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/56,  31,  16,  11, 0) // 4t-ups4-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/4,16, /*down,fd*/2,8,  /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/56,  36,  16,  0,  0) // 4t-ups4-downf2
-    CASE(/*sharedKB*/48, /*up,fu*/2,8,  /*down,fd*/4,16, /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/16,  22,  16,  12, 0) // 4t-ups2-downs4
-    CASE(/*sharedKB*/48, /*up,fu*/2,8,  /*down,fd*/4,16, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/29,  15,  16,  0,  0) // 4t-upf2-downs4
-    CASE(/*sharedKB*/48, /*up,fu*/2,12, /*down,fd*/1,1,  /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/96,  150, 28,  0,  0) // 6t-ups2-downf1
-    CASE(/*sharedKB*/48, /*up,fu*/1,1,  /*down,fd*/2,12, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/32,  35,  24,  0,  0) // 6t-upf1-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,12, /*down,fd*/2,12, /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/32,  46,  16,  10, 0) // 6t-ups2-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,12, /*down,fd*/2,12, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/58,  28,  24,  8,  0) // 6t-upf2-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,12, /*down,fd*/2,12, /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/52,  28,  16,  0,  0) // 6t-ups2-downf2
-    CASE(/*sharedKB*/48, /*up,fu*/4,24, /*down,fd*/2,12, /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/32,  51,  16,  5,  0) // 6t-ups4-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/4,24, /*down,fd*/2,12, /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/32,  56,  16,  6,  0) // 6t-ups4-downf2
-    CASE(/*sharedKB*/48, /*up,fu*/2,12, /*down,fd*/4,24, /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/16,  18,  16,  12, 0) // 6t-ups2-downs4
-    CASE(/*sharedKB*/96, /*up,fu*/2,12, /*down,fd*/4,24, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/27,  31,  32,  6,  0) // 6t-upf2-downs4 96kB
-    CASE(/*sharedKB*/48, /*up,fu*/2,12, /*down,fd*/4,24, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/27,  13,  24,  0,  0) // 6t-upf2-downs4
-    CASE(/*sharedKB*/48, /*up,fu*/2,16, /*down,fd*/1,1,  /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/148, 89,  24,  0,  0) // 8t-ups2-downf1
-    CASE(/*sharedKB*/48, /*up,fu*/1,1,  /*down,fd*/2,16, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/32,  31,  16,  5,  0) // 8t-upf1-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,16, /*down,fd*/2,16, /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/32,  41,  16,  9,  0) // 8t-ups2-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,16, /*down,fd*/2,16, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/56,  26,  24,  0,  0) // 8t-upf2-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/2,16, /*down,fd*/2,16, /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/32,  40,  16,  0,  0) // 8t-ups2-downf2
-    CASE(/*sharedKB*/48, /*up,fu*/4,32, /*down,fd*/2,16, /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/32,  46,  24,  5,  0) // 8t-ups4-downs2
-    CASE(/*sharedKB*/48, /*up,fu*/4,32, /*down,fd*/2,16, /*mode*/MODE_SUFD, /*tw,th,warps,xrep,wskip*/32,  50,  16,  0,  0) // 8t-ups4-downf2
-    CASE(/*sharedKB*/96, /*up,fu*/2,16, /*down,fd*/4,32, /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/24,  24,  32,  12, 1) // 8t-ups2-downs4 96kB
-    CASE(/*sharedKB*/48, /*up,fu*/2,16, /*down,fd*/4,32, /*mode*/MODE_SUSD, /*tw,th,warps,xrep,wskip*/16,  13,  16,  10, 1) // 8t-ups2-downs4
-    CASE(/*sharedKB*/96, /*up,fu*/2,16, /*down,fd*/4,32, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/25,  28,  28,  4,  0) // 8t-upf2-downs4 96kB
-    CASE(/*sharedKB*/48, /*up,fu*/2,16, /*down,fd*/4,32, /*mode*/MODE_FUSD, /*tw,th,warps,xrep,wskip*/25,  10,  24,  0,  0) // 8t-upf2-downs4
+    // Copy kernels to constant memory.
+    if      ( signWrite && !signRead) AT_CUDA_CHECK((copy_filters<true,  false>(at::cuda::getCurrentCUDAStream())));
+    else if (!signWrite &&  signRead) AT_CUDA_CHECK((copy_filters<false, true >(at::cuda::getCurrentCUDAStream())));
+    else if (!signWrite && !signRead) AT_CUDA_CHECK((copy_filters<false, false>(at::cuda::getCurrentCUDAStream())));
 
-    #undef CASE
-    return s; // No kernel found.
+    // Set cache and shared memory configurations for main kernel.
+    AT_CUDA_CHECK(cudaFuncSetCacheConfig((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, cudaFuncCachePreferShared));
+    
+    const int dynamicSharedKB = (SH == 48) ? 0 : SH;
+    if (dynamicSharedKB) // Need dynamically allocated shared memory?
+        AT_CUDA_CHECK(cudaFuncSetAttribute((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, cudaFuncAttributeMaxDynamicSharedMemorySize, dynamicSharedKB << 10));
+    AT_CUDA_CHECK(cudaFuncSetSharedMemConfig((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, cudaSharedMemBankSizeFourByte));
+
+    // Launch main kernel.
+    const int maxSubGz = 65535; // CUDA maximum for block z dimension.
+    for (int zofs=0; zofs < gz; zofs += maxSubGz) // Do multiple launches if gz is too big.
+    {
+        p.blockZofs = zofs;
+        int subGz = std::min(maxSubGz, gz - zofs);
+        AT_CUDA_CHECK(cudaLaunchKernel((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, dim3(gx, gy, subGz), bx, args, dynamicSharedKB << 10, at::cuda::getCurrentCUDAStream()));
+    }
+}
+
+template <class T, bool signWrite, bool signRead>
+void run_filtered_lrelu_act_kernel(filtered_lrelu_act_kernel_params& p) {
+    // Launch CUDA kernel.
+    void* args[] = {&p};
+    int bx = 128; // 4 warps per block.
+
+    // Logical size of launch = writeSigns ? p.s : p.x
+    uint32_t gx = signWrite ? p.sShape.x : p.xShape.x;
+    uint32_t gy = signWrite ? p.sShape.y : p.xShape.y;
+    uint32_t gz = p.xShape.z * p.xShape.w; // Same as in p.sShape if signs are in use.
+    gx = (gx - 1) / bx + 1;
+
+    // Make sure grid y and z dimensions are within CUDA launch limits. Kernel loops internally to do the rest.
+    const uint32_t gmax = 65535;
+    gy = std::min(gy, gmax);
+    gz = std::min(gz, gmax);
+
+    // Launch.
+    AT_CUDA_CHECK(cudaLaunchKernel((void*)&filtered_lrelu_act_kernel<T, signWrite, signRead>, dim3(gx, gy, gz), bx, args, 0, at::cuda::getCurrentCUDAStream()));
 }
 
 //------------------------------------------------------------------------

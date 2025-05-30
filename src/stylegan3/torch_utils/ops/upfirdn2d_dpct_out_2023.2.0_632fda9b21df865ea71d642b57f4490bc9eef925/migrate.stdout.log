@@ -1,0 +1,10 @@
+Parsing: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu
+Parsing: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cpp
+Analyzing: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu
+Analyzing: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cpp
+Migrating: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu
+Migrating: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cpp
+Processed 3 file(s) in -in-root folder "/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000"
+
+See Diagnostics Reference to resolve warnings and complete the migration:
+https://software.intel.com/content/www/us/en/develop/documentation/intel-dpcpp-compatibility-tool-user-guide/top/diagnostics-reference.html

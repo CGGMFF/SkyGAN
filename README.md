@@ -13,6 +13,7 @@ Important files/directories:
   - environment.yml: the Conda environment for general use (use that by default)
   - environment_cluster.yml: exported Conda environment we trained in
   - environment_wsl.yml: exported Conda environment we used for running inference (generating preview images)
+  - environment_intel.yml: environment for running on Intel GPUs
   - *_FID.py: modified files used for FID computation - replace the matching files if you want to run the evaluation
   - training/FID_prepare.ipynb: a Jupyter notebook used for processing training outputs, filtering and sorting the snapshots to progressively increase the data points density, and creating evaluation jobs
   - training/FID_plot.ipynb: a Jupyter notebook visualising the training progress
@@ -37,16 +38,16 @@ To get the dataset, place the following two files ([auto_processed_20230405_1727
 
 ## Usage
 ### Installation
-1. Prepare the Conda environment using our `environment.yml` (or other environment we provided if you want to use the exact same package versions we did)
+1. Prepare the Conda environment using our `environment_intel.yml` (or other environment we provided if you want to use the exact same package versions we did)
 ```
-conda env create -f src/stylegan3/environment.yml
-conda activate stylegan3
+conda env create -f src/stylegan3/environment_intel.yml
+source prepare_env.inc.sh  # you will need to re-run this after restart or after running a new shell
 ```
   - Make sure your conda is up to date with `conda update -n base conda`.
   - To avoid long waiting at "Solving Environment step", [switching to the libmamba solver](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) is advisable.
 
-2. Make sure gen_images.py (and visualizer.py?) from the original StyleGAN3 code run correctly (optional but useful for debugging)
-  - clone the original [stylegan3](https://github.com/nvlabs/stylegan3) repository, change into its directory, then verify everything works by running the following:
+2. Make sure gen_images.py (and visualizer.py?) from our ported StyleGAN3 code run correctly (optional but useful for debugging)
+  - clone our [stylegan3](https://github.com/martinmCGG/stylegan3) repository, change into its directory, checkout the active branch ('debug_profiling' as of writing this), then verify everything works by running the following:
 
 ```
 python gen_images.py --outdir=out --trunc=1 --seeds=2,1 --network=https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-r-afhqv2-512x512.pkl
@@ -54,7 +55,7 @@ python gen_images.py --outdir=out --trunc=1 --seeds=2,1 --network=https://api.ng
   - Note that the first run will cause compilation of PyTorch plugins/kernels, which may take a couple of minutes.
   - If everything works, you should see a cat image in the "out" directory.
 
-3. Build the sky_image_generator module (makes clear sky images, which are encoded in SkyGAN – used in botr training and inference)
+3. Build the sky_image_generator module (makes clear sky images, which are encoded in SkyGAN – used in both training and inference)
 ```
 g++-10 -O3 -Wall -shared -std=c++11 -fPIC -fopenmp $(python3 -m pybind11 --includes) -I"$CONDA_PREFIX"/include/opencv4/ -I"$CONDA_PREFIX"/lib/python3.9/site-packages/numpy/core/include/ -L"$CONDA_PREFIX"/lib/ sky_image_generator.cpp -o sky_image_generator$(python3-config --extension-suffix) -lopencv_core -lopencv_imgcodecs
 cd src/stylegan3
@@ -68,7 +69,7 @@ ln -s ../../ArPragueSkyModelGroundXYZ/
 ### Inference
 Generate a few images using a pre-trained network:
 ```
-CACHE_DIR=/tmp OPENCV_IO_ENABLE_OPENEXR=1 python gen_images.py --network /home/user/Downloads/k00133t_Ours_FID14.6@28.9M_network-snapshot-002343.pkl --normalize-azimuth=True --seeds='elevations+1000' --outdir=out --azimuth=180 --elevations=10,70
+OPENCV_IO_ENABLE_OPENEXR=1 python gen_images.py --network /home/user/Downloads/k00133t_Ours_FID14.6@28.9M_network-snapshot-002343.pkl --normalize-azimuth=True --seeds='elevations+1000' --outdir=out --azimuth=180 --elevations=10,70
 ```
   - Replace `/home/user/Downloads/k00133t_Ours_FID14.6@28.9M_network-snapshot-002343.pkl` with a path to a pre-trained network weights.
   - The generated skies with clouds are named `fake_seed*.png|exr`; the `clear_rec_*` outputs are the clear sky images as reconstructed by the network.

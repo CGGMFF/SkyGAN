@@ -10,13 +10,47 @@ import glob
 import hashlib
 import importlib
 import os
+import pathlib
 import re
 import shutil
+import subprocess
+import sys
 import uuid
 
 import torch
 import torch.utils.cpp_extension
 from torch.utils.file_baton import FileBaton
+
+allow_module_rebuild = True
+#allow_module_rebuild = False  # useful for profiling
+
+if allow_module_rebuild:
+    print('allow_module_rebuild =', allow_module_rebuild, '-> this would significantly slow down or freeze profiling!')
+else:
+    print('allow_module_rebuild =', allow_module_rebuild, '-> if not profiling, re-enable it!')
+
+
+try:
+    import intel_extension_for_pytorch as ipex
+    using_xpu = True
+    cpp_extension = torch.xpu.cpp_extension
+    torch_device_specific = ipex.xpu
+    device_str = 'xpu'
+
+    def build_and_load_module(name, build_directory,  *args, **kwargs):
+        if allow_module_rebuild:
+            cpp_extension.load(name=name, build_directory=build_directory, *args, **kwargs)
+        else:
+            print('allow_module_rebuild == False: only loading a module that was built previously')
+            ipex.xpu.cpp_extension._import_module_from_library(module_name=name, path=build_directory, is_python_module=True)
+
+except:
+    print('Warning: intel_extension_for_pytorch not loaded')
+    using_xpu = False
+    cpp_extension = torch.utils.cpp_extension
+    torch_device_specific = torch.cuda
+    device_str = 'cuda'
+    build_and_load_module = cpp_extension.load
 
 #----------------------------------------------------------------------------
 # Global options.
@@ -28,10 +62,10 @@ verbosity = 'brief' # Verbosity level: 'none', 'brief', 'full'
 
 def _find_compiler_bindir():
     patterns = [
-        'C:/Program Files (x86)/Microsoft Visual Studio/*/Professional/VC/Tools/MSVC/*/bin/Hostx64/x64',
-        'C:/Program Files (x86)/Microsoft Visual Studio/*/BuildTools/VC/Tools/MSVC/*/bin/Hostx64/x64',
-        'C:/Program Files (x86)/Microsoft Visual Studio/*/Community/VC/Tools/MSVC/*/bin/Hostx64/x64',
-        'C:/Program Files (x86)/Microsoft Visual Studio */vc/bin',
+        'C:/Program Files*/Microsoft Visual Studio/*/Professional/VC/Tools/MSVC/*/bin/Hostx64/x64',
+        'C:/Program Files*/Microsoft Visual Studio/*/BuildTools/VC/Tools/MSVC/*/bin/Hostx64/x64',
+        'C:/Program Files*/Microsoft Visual Studio/*/Community/VC/Tools/MSVC/*/bin/Hostx64/x64',
+        'C:/Program Files*/Microsoft Visual Studio */vc/bin',
     ]
     for pattern in patterns:
         matches = sorted(glob.glob(pattern))
@@ -42,7 +76,7 @@ def _find_compiler_bindir():
 #----------------------------------------------------------------------------
 
 def _get_mangled_gpu_name():
-    name = torch.cuda.get_device_name().lower()
+    name = torch_device_specific.get_device_name(0).lower()
     out = []
     for c in name:
         if re.match('[a-z0-9_-]+', c):
@@ -51,8 +85,18 @@ def _get_mangled_gpu_name():
             out.append('-')
     return ''.join(out)
 
+ori_subprocess_run = subprocess.run
+def hooked_subprocess_run(command, **kwargs):
+    #print('hooked_subprocess_run', command, kwargs)
+    if command == ['ninja', '-v']:
+        #print('MATCHED!!!!!!!!!!!!!!!!!!!')
+        ori_subprocess_run(['bash', '-c', 'ninja -t compdb > compile_commands.json'], **kwargs)
+        print('CHECK THE BUILD DIR FOR compile_commands.json:', kwargs['cwd'])
+    return ori_subprocess_run(command, **kwargs)
+subprocess.run = hooked_subprocess_run
+
 #----------------------------------------------------------------------------
-# Main entry point for compiling and loading C++/CUDA plugins.
+# Main entry point for compiling and loading C++/XPU plugins.
 
 _cached_plugins = dict()
 
@@ -84,12 +128,6 @@ def get_plugin(module_name, sources, headers=None, source_dir=None, **build_kwar
                 raise RuntimeError(f'Could not find MSVC/GCC/CLANG installation on this computer. Check _find_compiler_bindir() in "{__file__}".')
             os.environ['PATH'] += ';' + compiler_bindir
 
-        # Some containers set TORCH_CUDA_ARCH_LIST to a list that can either
-        # break the build or unnecessarily restrict what's available to nvcc.
-        # Unset it to let nvcc decide based on what's available on the
-        # machine.
-        os.environ['TORCH_CUDA_ARCH_LIST'] = ''
-
         # Incremental build md5sum trickery.  Copies all the input source files
         # into a cached build directory under a combined md5 digest of the input
         # source files.  Copying is done only if the combined digest has changed.
@@ -116,7 +154,7 @@ def get_plugin(module_name, sources, headers=None, source_dir=None, **build_kwar
 
             # Select cached build directory name.
             source_digest = hash_md5.hexdigest()
-            build_top_dir = torch.utils.cpp_extension._get_build_directory(module_name, verbose=verbose_build) # pylint: disable=protected-access
+            build_top_dir = cpp_extension._get_build_directory(module_name, verbose=verbose_build) # pylint: disable=protected-access
             cached_build_dir = os.path.join(build_top_dir, f'{source_digest}-{_get_mangled_gpu_name()}')
 
             if not os.path.isdir(cached_build_dir):
@@ -133,10 +171,12 @@ def get_plugin(module_name, sources, headers=None, source_dir=None, **build_kwar
 
             # Compile.
             cached_sources = [os.path.join(cached_build_dir, os.path.basename(fname)) for fname in sources]
-            torch.utils.cpp_extension.load(name=module_name, build_directory=cached_build_dir,
+
+            #subprocess.run(command, stdout=stdout_fileno if verbose else subprocess.PIPE, stderr=subprocess.STDOUT, cwd=build_directory, check=True, env=env)
+            build_and_load_module(name=module_name, build_directory=cached_build_dir,
                 verbose=verbose_build, sources=cached_sources, **build_kwargs)
         else:
-            torch.utils.cpp_extension.load(name=module_name, verbose=verbose_build, sources=sources, **build_kwargs)
+            build_and_load_module(name=module_name, verbose=verbose_build, sources=sources, **build_kwargs)
 
         # Load.
         module = importlib.import_module(module_name)
@@ -155,3 +195,17 @@ def get_plugin(module_name, sources, headers=None, source_dir=None, **build_kwar
     return module
 
 #----------------------------------------------------------------------------
+
+def get_ops_include_path():
+    include_dir_name = 'include_dpct_2024.2'#'include_2023.2'
+    return pathlib.Path(__file__).parent.resolve().joinpath('ops').joinpath(include_dir_name)
+
+def get_xpu_cflags():
+    return [
+        '-ffast-math', '-cl-fast-relaxed-math', '-I'+str(get_ops_include_path()),
+        #'-O3',
+        '-O1',
+        '-g', # enables VTune to show the C++ kernel source and instructions spent on each code line (rather than just assembly instructions)
+        #'-gline-tables-only', # seems to only give line info for non-kernel C++ code
+        '-fdebug-info-for-profiling', # https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-0/gpu-compute-media-hotspots-analysis.html
+    ]

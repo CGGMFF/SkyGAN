@@ -1,0 +1,498 @@
+---
+MainSourceFile:  '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/MainSrcFiles_placehold'
+Replacements:
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          447
+    Length:          0
+    ReplacementText: "#include <sycl/sycl.hpp>\n#include <dpct/dpct.hpp>\n"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4101
+    Length:          0
+    ReplacementText: "        /*\n        DPCT1049:1: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.\n        */\n"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4109
+    Length:          110
+    ReplacementText: "((sycl::queue*)(at::cuda::getCurrentCUDAStream()))->parallel_for(\n          sycl::nd_range<3>(sycl::range<3>(1, 1, gridSize) * sycl::range<3>(1, 1, blockSize), sycl::range<3>(1, 1, blockSize)), \n          [=](sycl::nd_item<3> item_ct1) {\n            bias_act_kernel_half();\n          });"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: true
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4219
+    Length:          1
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4280
+    Length:          0
+    ReplacementText: "        /*\n        DPCT1049:2: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.\n        */\n"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4288
+    Length:          111
+    ReplacementText: "((sycl::queue*)(at::cuda::getCurrentCUDAStream()))->parallel_for(\n          sycl::nd_range<3>(sycl::range<3>(1, 1, gridSize) * sycl::range<3>(1, 1, blockSize), sycl::range<3>(1, 1, blockSize)), \n          [=](sycl::nd_item<3> item_ct1) {\n            bias_act_kernel_float();\n          });"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: true
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4399
+    Length:          1
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4461
+    Length:          0
+    ReplacementText: "        /*\n        DPCT1049:3: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.\n        */\n"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4469
+    Length:          112
+    ReplacementText: "((sycl::queue*)(at::cuda::getCurrentCUDAStream()))->parallel_for(\n          sycl::nd_range<3>(sycl::range<3>(1, 1, gridSize) * sycl::range<3>(1, 1, blockSize), sycl::range<3>(1, 1, blockSize)), \n          [=](sycl::nd_item<3> item_ct1) {\n            bias_act_kernel_double();\n          });"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: true
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Offset:          4581
+    Length:          1
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          447
+    Length:          0
+    ReplacementText: "#include <sycl/sycl.hpp>\n#include <dpct/dpct.hpp>\n"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          966
+    Length:          11
+    ReplacementText: "/*\nDPCT1110:0: The total declared local variable size in device function bias_act_kernel exceeds 128 bytes and may cause high register pressure. Consult with your hardware vendor to find the total register size available and adjust the code, or use smaller sub-group size to avoid high register pressure.\n*/\n"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          1022
+    Length:          0
+    ReplacementText: ', const sycl::nd_item<3> &item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          1612
+    Length:          10
+    ReplacementText: 'item_ct1.get_group(2)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          1635
+    Length:          10
+    ReplacementText: 'item_ct1.get_local_range(2)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          1648
+    Length:          11
+    ReplacementText: 'item_ct1.get_local_id(2)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          1739
+    Length:          10
+    ReplacementText: 'item_ct1.get_local_range(2)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          2784
+    Length:          6
+    ReplacementText: 'sycl::exp(x)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          3116
+    Length:          7
+    ReplacementText: 'sycl::exp(-x)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          3348
+    Length:          6
+    ReplacementText: 'sycl::exp(x)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          3621
+    Length:          6
+    ReplacementText: 'sycl::exp(x)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          3914
+    Length:          17
+    ReplacementText: 'sycl::log(sycl::exp(x) + one)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          3972
+    Length:          8
+    ReplacementText: 'sycl::exp(-yy)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          4022
+    Length:          8
+    ReplacementText: 'sycl::exp(-yy)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          4186
+    Length:          7
+    ReplacementText: 'sycl::exp(-x)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          4262
+    Length:          9
+    ReplacementText: 'sycl::exp(xref)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          4602
+    Length:          10
+    ReplacementText: 'sycl::exp(-xref)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5019
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5075
+    Length:          0
+    ReplacementText: ', const sycl::nd_item<3> &item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5122
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5173
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5224
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5275
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5326
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5377
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5428
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5479
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5530
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5557
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5618
+    Length:          0
+    ReplacementText: ",\n                          const sycl::nd_item<3> &item_ct1"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5654
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5660
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5722
+    Length:          0
+    ReplacementText: ",\n                           const sycl::nd_item<3> &item_ct1"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5754
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5760
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5823
+    Length:          0
+    ReplacementText: ",\n                            const sycl::nd_item<3> &item_ct1"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Offset:          5856
+    Length:          0
+    ReplacementText: ', item_ct1'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+MainSourceFilesDigest:
+  - MainSourceFile:  '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp'
+    Digest:          e3bb9108d60525d917dc6b49b0691f9f
+  - MainSourceFile:  '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu'
+    Digest:          a048c52c01b940a1ef8dbe1a596058cf
+DpctVersion:     2024.2.0
+MainHelperFileName: ''
+USMLevel:        ''
+FeatureMap:      {}
+CompileTargets:  {}
+OptionMap:
+  AnalysisScopePath:
+    Value:           '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti'
+    Specified:       false
+  AsyncHandler:
+    Value:           'false'
+    Specified:       false
+  BuildScript:
+    Value:           '0'
+    Specified:       false
+  CodePinEnabled:
+    Value:           'false'
+    Specified:       false
+  CommentsEnabled:
+    Value:           'false'
+    Specified:       false
+  CompilationsDir:
+    Value:           '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti'
+    Specified:       true
+  CtadEnabled:
+    Value:           'false'
+    Specified:       false
+  EnablepProfiling:
+    Value:           'false'
+    Specified:       false
+  ExperimentalFlag:
+    Value:           '0'
+    Specified:       false
+  ExplicitNamespace:
+    Value:           '20'
+    Specified:       false
+  ExtensionDDFlag:
+    Value:           '0'
+    Specified:       false
+  ExtensionDEFlag:
+    Value:           '4294967295'
+    Specified:       false
+  HelperFuncPreferenceFlag:
+    Value:           '0'
+    Specified:       false
+  NDRangeDim:
+    Value:           '3'
+    Specified:       false
+  NoDRYPattern:
+    Value:           'false'
+    Specified:       false
+  OptimizeMigration:
+    Value:           'false'
+    Specified:       false
+  ProcessAll:
+    Value:           'false'
+    Specified:       false
+  RuleFile:
+    Value:           ''
+    Specified:       false
+  SyclNamedLambda:
+    Value:           'false'
+    Specified:       false
+  UsmLevel:
+    Value:           '1'
+    Specified:       false
+...

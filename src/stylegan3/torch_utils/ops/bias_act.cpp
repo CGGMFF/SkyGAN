@@ -73,19 +73,26 @@ static torch::Tensor bias_act(torch::Tensor x, torch::Tensor b, torch::Tensor xr
     p.stepB = (b.numel()) ? (int)x.stride(dim) : 1;
 
     // Choose CUDA kernel.
-    void* kernel;
-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(x.scalar_type(), "upfirdn2d_cuda", [&]
-    {
-        kernel = choose_bias_act_kernel<scalar_t>(p);
-    });
-    TORCH_CHECK(kernel, "no CUDA kernel found for the specified activation func");
+    // void* kernel;
+    // AT_DISPATCH_FLOATING_TYPES_AND_HALF(x.scalar_type(), "upfirdn2d_cuda", [&]
+    // {
+    //     kernel = choose_bias_act_kernel<scalar_t>(p);
+    // });
+    // TORCH_CHECK(kernel, "no CUDA kernel found for the specified activation func");
 
     // Launch CUDA kernel.
     p.loopX = 4;
     int blockSize = 4 * 32;
     int gridSize = (p.sizeX - 1) / (p.loopX * blockSize) + 1;
     void* args[] = {&p};
-    AT_CUDA_CHECK(cudaLaunchKernel(kernel, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream()));
+    if (x.scalar_type() == at::ScalarType::Half) {
+        cudaLaunchKernel((void*)&bias_act_kernel_half, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream());
+    } else if (x.scalar_type() == at::ScalarType::Float) {
+        cudaLaunchKernel((void*)&bias_act_kernel_float, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream());
+    } else if (x.scalar_type() == at::ScalarType::Double) {
+        cudaLaunchKernel((void*)&bias_act_kernel_double, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream());
+    }
+
     return y;
 }
 

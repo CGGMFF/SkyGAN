@@ -37,19 +37,30 @@ _null_tensor = torch.empty([0])
 
 def _init():
     global _plugin
+    #plugin_dir = 'bias_act_dpct_out_2023.2.0_632fda9b21df865ea71d642b57f4490bc9eef925/'
+    plugin_dir = 'bias_act_dpct_out_2024.2.0_55a3f034030e4bd0f36d7c37f24f8366079a639b/'
     if _plugin is None:
-        _plugin = custom_ops.get_plugin(
-            module_name='bias_act_plugin',
-            sources=['bias_act.cpp', 'bias_act.cu'],
-            headers=['bias_act.h'],
-            source_dir=os.path.dirname(__file__),
-            extra_cuda_cflags=['--use_fast_math'],
-        )
+        if custom_ops.using_xpu:
+            _plugin = custom_ops.get_plugin(
+                module_name='bias_act_plugin',
+                sources=[plugin_dir + 'bias_act.cpp.dp.cpp', plugin_dir + 'bias_act.dp.cpp'],
+                headers=[plugin_dir + 'bias_act.h'],
+                source_dir=os.path.dirname(__file__),
+                extra_cflags=custom_ops.get_xpu_cflags(),
+            )
+        else:
+            _plugin = custom_ops.get_plugin(
+                module_name='bias_act_plugin',
+                sources=['bias_act.cpp', 'bias_act.cu'],
+                headers=['bias_act.h'],
+                source_dir=os.path.dirname(__file__),
+                extra_cuda_cflags=['--use_fast_math', '--allow-unsupported-compiler'],
+            )
     return True
 
 #----------------------------------------------------------------------------
 
-def bias_act(x, b=None, dim=1, act='linear', alpha=None, gain=None, clamp=None, impl='cuda'):
+def bias_act(x, b=None, dim=1, act='linear', alpha=None, gain=None, clamp=None, impl='xpu'):
     r"""Fused bias and activation function.
 
     Adds bias `b` to activation tensor `x`, evaluates activation function `act`,
@@ -74,15 +85,15 @@ def bias_act(x, b=None, dim=1, act='linear', alpha=None, gain=None, clamp=None, 
                 If unsure, consider specifying 1.
         clamp:  Clamp the output values to `[-clamp, +clamp]`, or `None` to disable
                 the clamping (default).
-        impl:   Name of the implementation to use. Can be `"ref"` or `"cuda"` (default).
+        impl:   Name of the implementation to use. Can be `"ref"` or `"xpu"` (default).
 
     Returns:
         Tensor of the same shape and datatype as `x`.
     """
     assert isinstance(x, torch.Tensor)
-    assert impl in ['ref', 'cuda']
-    if impl == 'cuda' and x.device.type == 'cuda' and _init():
-        return _bias_act_cuda(dim=dim, act=act, alpha=alpha, gain=gain, clamp=clamp).apply(x, b)
+    assert impl in ['ref', 'xpu']
+    if impl == 'xpu' and _init() and x.device.type == custom_ops.device_str:
+        return _bias_act_xpu(dim=dim, act=act, alpha=alpha, gain=gain, clamp=clamp).apply(x, b)
     return _bias_act_ref(x=x, b=b, dim=dim, act=act, alpha=alpha, gain=gain, clamp=clamp)
 
 #----------------------------------------------------------------------------
@@ -121,10 +132,10 @@ def _bias_act_ref(x, b=None, dim=1, act='linear', alpha=None, gain=None, clamp=N
 
 #----------------------------------------------------------------------------
 
-_bias_act_cuda_cache = dict()
+_bias_act_xpu_cache = dict()
 
-def _bias_act_cuda(dim=1, act='linear', alpha=None, gain=None, clamp=None):
-    """Fast CUDA implementation of `bias_act()` using custom ops.
+def _bias_act_xpu(dim=1, act='linear', alpha=None, gain=None, clamp=None):
+    """Fast XPU implementation of `bias_act()` using custom ops.
     """
     # Parse arguments.
     assert clamp is None or clamp >= 0
@@ -135,14 +146,14 @@ def _bias_act_cuda(dim=1, act='linear', alpha=None, gain=None, clamp=None):
 
     # Lookup from cache.
     key = (dim, act, alpha, gain, clamp)
-    if key in _bias_act_cuda_cache:
-        return _bias_act_cuda_cache[key]
+    if key in _bias_act_xpu_cache:
+        return _bias_act_xpu_cache[key]
 
     # Forward op.
-    class BiasActCuda(torch.autograd.Function):
+    class BiasActXpu(torch.autograd.Function):
         @staticmethod
         def forward(ctx, x, b): # pylint: disable=arguments-differ
-            ctx.memory_format = torch.channels_last if x.ndim > 2 and x.stride(1) == 1 else torch.contiguous_format
+            ctx.memory_format = torch.channels_last if x.ndim > 2 and x.stride(1) == 1 else torch.contiguous_format # TODO?
             x = x.contiguous(memory_format=ctx.memory_format)
             b = b.contiguous() if b is not None else _null_tensor
             y = x
@@ -164,7 +175,7 @@ def _bias_act_cuda(dim=1, act='linear', alpha=None, gain=None, clamp=None):
             if ctx.needs_input_grad[0] or ctx.needs_input_grad[1]:
                 dx = dy
                 if act != 'linear' or gain != 1 or clamp >= 0:
-                    dx = BiasActCudaGrad.apply(dy, x, b, y)
+                    dx = BiasActXpuGrad.apply(dy, x, b, y)
 
             if ctx.needs_input_grad[1]:
                 db = dx.sum([i for i in range(dx.ndim) if i != dim])
@@ -172,7 +183,7 @@ def _bias_act_cuda(dim=1, act='linear', alpha=None, gain=None, clamp=None):
             return dx, db
 
     # Backward op.
-    class BiasActCudaGrad(torch.autograd.Function):
+    class BiasActXpuGrad(torch.autograd.Function):
         @staticmethod
         def forward(ctx, dy, x, b, y): # pylint: disable=arguments-differ
             ctx.memory_format = torch.channels_last if dy.ndim > 2 and dy.stride(1) == 1 else torch.contiguous_format
@@ -184,7 +195,7 @@ def _bias_act_cuda(dim=1, act='linear', alpha=None, gain=None, clamp=None):
 
         @staticmethod
         def backward(ctx, d_dx): # pylint: disable=arguments-differ
-            d_dx = d_dx.contiguous(memory_format=ctx.memory_format)
+            d_dx = d_dx.contiguous(memory_format=ctx.memory_format) # TODO?
             dy, x, b, y = ctx.saved_tensors
             d_dy = None
             d_x = None
@@ -192,7 +203,7 @@ def _bias_act_cuda(dim=1, act='linear', alpha=None, gain=None, clamp=None):
             d_y = None
 
             if ctx.needs_input_grad[0]:
-                d_dy = BiasActCudaGrad.apply(d_dx, x, b, y)
+                d_dy = BiasActXpuGrad.apply(d_dx, x, b, y)
 
             if spec.has_2nd_grad and (ctx.needs_input_grad[1] or ctx.needs_input_grad[2]):
                 d_x = _plugin.bias_act(d_dx, b, x, y, dy, 2, dim, spec.cuda_idx, alpha, gain, clamp)
@@ -203,7 +214,7 @@ def _bias_act_cuda(dim=1, act='linear', alpha=None, gain=None, clamp=None):
             return d_dy, d_x, d_b, d_y
 
     # Add to cache.
-    _bias_act_cuda_cache[key] = BiasActCuda
-    return BiasActCuda
+    _bias_act_xpu_cache[key] = BiasActXpu
+    return BiasActXpu
 
 #----------------------------------------------------------------------------

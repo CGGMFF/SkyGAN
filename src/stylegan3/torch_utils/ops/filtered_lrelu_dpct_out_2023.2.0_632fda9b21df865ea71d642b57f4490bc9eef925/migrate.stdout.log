@@ -1,0 +1,16 @@
+Parsing: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_rd.cu
+Parsing: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_wr.cu
+Parsing: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_ns.cu
+Parsing: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cpp
+Analyzing: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_rd.cu
+Analyzing: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_wr.cu
+Analyzing: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_ns.cu
+Analyzing: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cpp
+Migrating: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_rd.cu
+Migrating: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_wr.cu
+Migrating: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_ns.cu
+Migrating: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cpp
+Processed 6 file(s) in -in-root folder "/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000"
+
+See Diagnostics Reference to resolve warnings and complete the migration:
+https://software.intel.com/content/www/us/en/develop/documentation/intel-dpcpp-compatibility-tool-user-guide/top/diagnostics-reference.html

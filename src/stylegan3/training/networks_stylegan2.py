@@ -13,7 +13,7 @@ https://github.com/NVlabs/stylegan2/blob/master/training/networks_stylegan2.py""
 
 import numpy as np
 import torch
-from torch_utils import misc
+from torch_utils import custom_ops, misc
 from torch_utils import persistence
 from torch_utils.ops import conv2d_resample
 from torch_utils.ops import upfirdn2d
@@ -605,7 +605,7 @@ class DiscriminatorBlock(torch.nn.Module):
                 trainable=next(trainable_iter), resample_filter=resample_filter, channels_last=self.channels_last)
 
     def forward(self, x, img, force_fp32=False):
-        if (x if x is not None else img).device.type != 'cuda':
+        if (x if x is not None else img).device.type != custom_ops.device_str:
             force_fp32 = True
         dtype = torch.float16 if self.use_fp16 and not force_fp32 else torch.float32
         memory_format = torch.channels_last if self.channels_last and not force_fp32 else torch.contiguous_format

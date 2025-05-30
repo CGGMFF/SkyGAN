@@ -1,0 +1,136 @@
+---
+MainSourceFile:  '/media/user/a648b44d-0418-4c82-b172-8bd278c99e42/home/user/stylegan3/torch_utils/ops/bias_act_dpct_out_2024.2.0_55a3f034030e4bd0f36d7c37f24f8366079a639b/bias_act.h'
+Replacements:
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.h'
+    Offset:          0
+    Length:          0
+    ReplacementText: "#include <sycl/sycl.hpp>\n#include <dpct/dpct.hpp>\n"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.h'
+    Offset:          1448
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.h'
+    Offset:          1509
+    Length:          0
+    ReplacementText: ",\n                          const sycl::nd_item<3> &item_ct1"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.h'
+    Offset:          1512
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.h'
+    Offset:          1574
+    Length:          0
+    ReplacementText: ",\n                           const sycl::nd_item<3> &item_ct1"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.h'
+    Offset:          1577
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.h'
+    Offset:          1640
+    Length:          0
+    ReplacementText: ",\n                            const sycl::nd_item<3> &item_ct1"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+MainSourceFilesDigest:
+  - MainSourceFile:  '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.h'
+    Digest:          03120110d2e738ae512607e2607cf1bd
+DpctVersion:     2024.2.0
+MainHelperFileName: ''
+USMLevel:        ''
+FeatureMap:      {}
+CompileTargets:  {}
+OptionMap:
+  AnalysisScopePath:
+    Value:           '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti'
+    Specified:       false
+  AsyncHandler:
+    Value:           'false'
+    Specified:       false
+  BuildScript:
+    Value:           '0'
+    Specified:       false
+  CodePinEnabled:
+    Value:           'false'
+    Specified:       false
+  CommentsEnabled:
+    Value:           'false'
+    Specified:       false
+  CompilationsDir:
+    Value:           '/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti'
+    Specified:       true
+  CtadEnabled:
+    Value:           'false'
+    Specified:       false
+  EnablepProfiling:
+    Value:           'false'
+    Specified:       false
+  ExperimentalFlag:
+    Value:           '0'
+    Specified:       false
+  ExplicitNamespace:
+    Value:           '20'
+    Specified:       false
+  ExtensionDDFlag:
+    Value:           '0'
+    Specified:       false
+  ExtensionDEFlag:
+    Value:           '4294967295'
+    Specified:       false
+  HelperFuncPreferenceFlag:
+    Value:           '0'
+    Specified:       false
+  NDRangeDim:
+    Value:           '3'
+    Specified:       false
+  NoDRYPattern:
+    Value:           'false'
+    Specified:       false
+  OptimizeMigration:
+    Value:           'false'
+    Specified:       false
+  ProcessAll:
+    Value:           'false'
+    Specified:       false
+  RuleFile:
+    Value:           ''
+    Specified:       false
+  SyclNamedLambda:
+    Value:           'false'
+    Specified:       false
+  UsmLevel:
+    Value:           '1'
+    Specified:       false
+...

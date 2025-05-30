@@ -8,25 +8,55 @@
 
 """Generate lerp videos using pretrained network pickle."""
 
+print('WARNING: currently untested, use at your own risk')
+# TODO port the azimuth normalization from gen_images.py, possibly other things?
+
 import copy
 import os
 import re
 from typing import List, Optional, Tuple, Union
 
 import click
+import torch
 import dnnlib
+try:
+    import intel_extension_for_pytorch as ipex
+    try_ipex_optimize = ipex.optimize
+    device_str = 'xpu'
+except:
+    print('Warning: intel_extension_for_pytorch not loaded')
+    def try_ipex_optimize(module):
+        return module
+    device_str = 'cuda'
 import imageio
 import numpy as np
 import scipy.interpolate
 import gen_images
 from secondary_channels import SecondaryChannels
-import torch
-from tqdm import tqdm
+from tqdm import tqdm as std_tqdm
 import training.loss
 import training.utils
 import training.training_loop
 
 import legacy
+
+# saving the "it/s" rate to compute statistics later
+class tqdm(std_tqdm):
+    def __init__(self, *args, **kwargs):
+        kwargs['smoothing'] = 1 # current/instantaneous speed updates (effectively disables exponential moving average)
+        super().__init__(*args, **kwargs)
+        self.rates = []
+
+    def update(self, n=1):
+        displayed = super().update(n)
+        rate = self.format_dict['rate']
+        if displayed and rate is not None:
+            self.rates.append(rate)
+        return displayed
+    
+    def __del__(self):
+        r = np.array(self.rates)
+        print(f'{self.desc} min/mean/median/max rate: {np.min(r):.2f} {np.mean(r):.2f} {np.median(r):.2f} {np.max(r):.2f} it/s')
 
 #----------------------------------------------------------------------------
 
@@ -48,7 +78,7 @@ def layout_grid(img, grid_w=None, grid_h=1, float_to_uint8=True, chw_to_hwc=True
 
 #----------------------------------------------------------------------------
 
-def gen_interp_video(E, G, D, sc, elevation, azimuth, mp4: str, seeds, shuffle_seed=None, w_frames=60*4, kind='cubic', grid_dims=(1,1), num_keyframes=None, wraps=2, psi=1, device=torch.device('cuda'), **video_kwargs):
+def gen_interp_video(E, G, D, sc, elevation, azimuth, mp4: str, seeds, shuffle_seed=None, w_frames=60*4, kind='cubic', grid_dims=(1,1), num_keyframes=None, wraps=2, psi=1, device=torch.device(device_str), preheat=False, desc=None, **video_kwargs):
     grid_w = grid_dims[0]
     grid_h = grid_dims[1]
 
@@ -67,7 +97,7 @@ def gen_interp_video(E, G, D, sc, elevation, azimuth, mp4: str, seeds, shuffle_s
         rng = np.random.RandomState(seed=shuffle_seed)
         rng.shuffle(all_seeds)
 
-    zs = torch.from_numpy(np.stack([np.random.RandomState(seed).randn(G.z_dim) for seed in all_seeds])).to(device)
+    zs = torch.from_numpy(np.stack([np.random.RandomState(seed).randn(G.z_dim) for seed in all_seeds])).to(torch.float32).to(device)
     clear_img = gen_images.generate_clear_img(elevation, azimuth, device, sc)
     gen_images.save_img(training.utils.clear_extract_rgb(clear_img.cpu().numpy()), os.path.dirname(mp4), 0, 'v_clear', drange=[-1,1])
 
@@ -87,14 +117,20 @@ def gen_interp_video(E, G, D, sc, elevation, azimuth, mp4: str, seeds, shuffle_s
             row.append(interp)
         grid.append(row)
 
+    print('preheat:', preheat)
+    if preheat:
+        # Pre-heat by generating a single dummy image
+        w = torch.from_numpy(interp(0)).to(torch.float32).to(device)
+        img = G.synthesis(ws=w.unsqueeze(0), noise_mode='const')[0]
+
     # Render video.
-    video_out = imageio.get_writer(mp4, mode='I', fps=60, codec='libx264', **video_kwargs)
-    for frame_idx in tqdm(range(num_keyframes * w_frames)):
+    video_out = imageio.get_writer(mp4, mode='I', fps=60, codec='libx264', **video_kwargs) # when benchmarking with Intel VTune or NSight, this line (and the following ones referencing `video_out`) may need to be disabled, otherwise a "broken pipe" error may be encountered (related to passing the video frames to ffmpeg)
+    for frame_idx in tqdm(range(num_keyframes * w_frames), bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_noinv_fmt}]", desc=desc):
         imgs = []
         for yi in range(grid_h):
             for xi in range(grid_w):
                 interp = grid[yi][xi]
-                w = torch.from_numpy(interp(frame_idx / w_frames)).to(device)
+                w = torch.from_numpy(interp(frame_idx / w_frames)).to(torch.float32).to(device)
                 #img = G.synthesis(ws=w.unsqueeze(0), noise_mode='const')[0]
                 img_fake, img_clear_rec, _gen_ws = loss.run_G_synthesis(
                     ws=w.unsqueeze(0),
@@ -161,6 +197,7 @@ def parse_tuple(s: Union[str, Tuple[int,int]]) -> Tuple[int, int]:
 @click.option('--trunc', 'truncation_psi', type=float, help='Truncation psi', default=1, show_default=True)
 @click.option('--output', help='Output .mp4 filename', type=str, required=True, metavar='FILE')
 @click.option('--device', help='Device for inference', type=click.Choice(['cpu', 'cuda']), default='cuda', show_default=True)
+@click.option('--preheat', help='Generate a dummy frame before rendering the video', type=bool, default=False)
 def generate_images(
     network_pkl: str,
     seeds: List[int],
@@ -173,6 +210,7 @@ def generate_images(
     w_frames: int,
     device: str,
     output: str,
+    preheat: bool
 ):
     """Render a latent vector interpolation video.
 
@@ -197,13 +235,37 @@ def generate_images(
     """
 
     print('Loading networks from "%s"...' % network_pkl)
-    device = torch.device(device)
-    E, G, D = gen_images.load_nets(network_pkl, device)
+    device = torch.device(device_str)
+    with dnnlib.util.open_url(network_pkl) as f:
+        E, G, D = gen_images.load_nets(network_pkl, device)
 
     resolution = 1024
     sc = SecondaryChannels(resolution)
 
-    gen_interp_video(E=E, G=G, D=D, sc=sc, elevation=elevation, azimuth=azimuth, mp4=output, bitrate='12M', grid_dims=grid, num_keyframes=num_keyframes, w_frames=w_frames, seeds=seeds, shuffle_seed=shuffle_seed, psi=truncation_psi, device=device)
+    G = try_ipex_optimize(G)
+
+
+    #from torch.profiler import profile, record_function, ProfilerActivity
+    #print('dir(ProfilerActivity)', dir(ProfilerActivity))
+    #with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
+    #    with record_function("model_inference"):
+    #with profile(activities=[
+    #    ProfilerActivity.CPU, ProfilerActivity.XPU], record_shapes=True) as prof:
+    #    with record_function("model_inference"):
+    network_pkl_file = network_pkl.split('/')[-1]
+    #architecture_name = '-'.join(network_pkl_file.split('-')[:-2])
+    from torch.profiler import profile, record_function, ProfilerActivity
+    with profile(activities=[
+        ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
+        with record_function("model_inference"):
+            gen_interp_video(E=E, G=G, D=D, sc=sc, elevation=elevation, azimuth=azimuth, mp4=output, bitrate='12M', grid_dims=grid, num_keyframes=num_keyframes, w_frames=w_frames, seeds=seeds, shuffle_seed=shuffle_seed, psi=truncation_psi, preheat=preheat, desc=network_pkl_file)
+    print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
+    #print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+    #print(prof.key_averages().table(sort_by="xpu_time_total", row_limit=10))
+    #import time
+    #print('sleeping')
+    #time.sleep(3)
+    #print('end')
 
 #----------------------------------------------------------------------------
 

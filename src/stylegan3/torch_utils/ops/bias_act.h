@@ -33,6 +33,13 @@ struct bias_act_kernel_params
 //------------------------------------------------------------------------
 // CUDA kernel selection.
 
-template <class T> void* choose_bias_act_kernel(const bias_act_kernel_params& p);
+//template <class T> void* choose_bias_act_kernel(const bias_act_kernel_params& p);
+//template <class T, int A> __global__ void bias_act_kernel(bias_act_kernel_params p);
+//template <class T> __global__ void bias_act_kernel(bias_act_kernel_params p);
+//__global__ void bias_act_kernel(bias_act_kernel_params p);
+
+__global__ void bias_act_kernel_half(bias_act_kernel_params p);
+__global__ void bias_act_kernel_float(bias_act_kernel_params p);
+__global__ void bias_act_kernel_double(bias_act_kernel_params p);
 
 //------------------------------------------------------------------------

@@ -17,6 +17,17 @@ import psutil
 import PIL.Image
 import numpy as np
 import torch
+
+try:
+    import intel_extension_for_pytorch as ipex
+    try_ipex_optimize = ipex.optimize
+    device_str = 'xpu'
+except:
+    print('Warning: intel_extension_for_pytorch not loaded')
+    def try_ipex_optimize(module, optimizer):
+        return module, optimizer
+    device_str = 'cuda'
+
 import dnnlib
 from torch_utils import misc
 from torch_utils import training_stats
@@ -27,6 +38,8 @@ import cv2
 
 import legacy
 from metrics import metric_main
+
+import nuda
 
 dump_images = False
 
@@ -40,8 +53,8 @@ def unstretch(x): # [-1, 1] -> [0, 1]
 
 def setup_snapshot_image_grid(training_set, random_seed=0):
     rnd = np.random.RandomState(random_seed)
-    gw = np.clip(7680 // training_set.image_shape[2], 7, 32)
-    gh = np.clip(4320 // training_set.image_shape[1], 4, 32)
+    gw = np.clip(1024 // training_set.image_shape[2], 7, 32)
+    gh = np.clip(1024 // training_set.image_shape[1], 4, 32)
 
     # No labels => show random subset of training samples.
     if not training_set.has_labels:
@@ -189,7 +202,7 @@ def training_loop(
 ):
     # Initialize.
     start_time = time.time()
-    device = torch.device('cuda', rank)
+    device = torch.device(device_str, rank)
     np.random.seed(random_seed * num_gpus + rank)
     torch.manual_seed(random_seed * num_gpus + rank)
     torch.backends.cudnn.benchmark = cudnn_benchmark    # Improves training speed.
@@ -292,7 +305,7 @@ def training_loop(
         if reg_interval is None:
             print(name, 'will merge "main" and "reg" into "both"')
             #opt = dnnlib.util.construct_class_by_name(params=module.parameters(), **opt_kwargs) # subclass of torch.optim.Optimizer
-            opts = [dnnlib.util.construct_class_by_name(params=module.parameters(), **opt_kwargs) for module, opt_kwargs in zip(modules, opts_kwargs)] # subclass of torch.optim.Optimizer
+            modules, opts = zip(*[try_ipex_optimize(module, optimizer=dnnlib.util.construct_class_by_name(params=module.parameters(), **opt_kwargs)) for module, opt_kwargs in zip(modules, opts_kwargs)]) # subclass of torch.optim.Optimizer
             phases += [dnnlib.EasyDict(name=name+'both', modules=modules, opts=opts, interval=1)]
         else: # Lazy regularization.
             print(name, 'will use lazy regularization')
@@ -302,7 +315,9 @@ def training_loop(
                 opt_kwargs = dnnlib.EasyDict(opt_kwargs)
                 opt_kwargs.lr = opt_kwargs.lr * mb_ratio
                 opt_kwargs.betas = [beta ** mb_ratio for beta in opt_kwargs.betas]
-                opts += [dnnlib.util.construct_class_by_name(module.parameters(), **opt_kwargs)] # subclass of torch.optim.Optimizer
+                opt = dnnlib.util.construct_class_by_name(module.parameters(), **opt_kwargs) # subclass of torch.optim.Optimizer
+                module, opt = try_ipex_optimize(module, optimizer=opt)
+                opts += [opt]
             phases += [dnnlib.EasyDict(name=name+'main', modules=modules, opts=opts, interval=1)]
             phases += [dnnlib.EasyDict(name=name+'reg', modules=modules, opts=opts, interval=reg_interval)]
     for phase in phases:

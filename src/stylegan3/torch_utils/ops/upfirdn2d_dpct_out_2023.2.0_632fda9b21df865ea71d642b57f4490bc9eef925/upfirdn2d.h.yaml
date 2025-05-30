@@ -1,0 +1,172 @@
+---
+MainSourceFile:  '/home/martin/intel_hackathon/stylegan3/torch_utils/ops/upfirdn2d_dpct_out_2023.2.0_632fda9b21df865ea71d642b57f4490bc9eef925/upfirdn2d.h'
+Replacements:
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          447
+    Length:          26
+    ReplacementText: "#include <sycl/sycl.hpp>\n#include <dpct/dpct.hpp>\n"
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          684
+    Length:          4
+    ReplacementText: 'sycl::int2'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          708
+    Length:          4
+    ReplacementText: 'sycl::int2'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          734
+    Length:          4
+    ReplacementText: 'sycl::int2'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          813
+    Length:          4
+    ReplacementText: 'sycl::int4'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          884
+    Length:          4
+    ReplacementText: 'sycl::int4'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          914
+    Length:          4
+    ReplacementText: 'sycl::int2'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          969
+    Length:          4
+    ReplacementText: 'sycl::int2'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          1003
+    Length:          4
+    ReplacementText: 'sycl::int4'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+  - FilePath:        '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Offset:          1074
+    Length:          4
+    ReplacementText: 'sycl::int4'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+    BlockLevelFormatFlag: false
+MainSourceFilesDigest:
+  - MainSourceFile:  '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.h'
+    Digest:          5853ea67ae61d1d21d1053963c7f2991
+DpctVersion:     2023.2.0
+MainHelperFileName: dpct
+USMLevel:        ''
+FeatureMap:
+  device.hpp:
+    has_capability_or_fail:
+      IsCalled:        true
+      CallerSrcFiles:
+        - '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu'
+      SubFeatureMap:   {}
+  dpct.hpp:
+    dpct_align_and_inline:
+      IsCalled:        true
+      CallerSrcFiles:
+        - '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu'
+      SubFeatureMap:   {}
+CompileTargets:  {}
+OptionMap:
+  AnalysisScopePath:
+    Value:           '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000'
+    Specified:       false
+  AsyncHandler:
+    Value:           'false'
+    Specified:       false
+  CommentsEnabled:
+    Value:           'false'
+    Specified:       false
+  CompilationsDir:
+    Value:           '/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000'
+    Specified:       true
+  CtadEnabled:
+    Value:           'false'
+    Specified:       false
+  CustomHelperFileName:
+    Value:           dpct
+    Specified:       false
+  EnablepProfiling:
+    Value:           'false'
+    Specified:       false
+  ExperimentalFlag:
+    Value:           '0'
+    Specified:       false
+  ExplicitClNamespace:
+    Value:           'false'
+    Specified:       false
+  ExplicitNamespace:
+    Value:           '20'
+    Specified:       false
+  ExtensionDDFlag:
+    Value:           '0'
+    Specified:       false
+  ExtensionDEFlag:
+    Value:           '4294967295'
+    Specified:       false
+  NDRangeDim:
+    Value:           '3'
+    Specified:       false
+  NoDRYPattern:
+    Value:           'false'
+    Specified:       false
+  OptimizeMigration:
+    Value:           'false'
+    Specified:       false
+  ProcessAll:
+    Value:           'false'
+    Specified:       false
+  RuleFile:
+    Value:           ''
+    Specified:       false
+  SyclNamedLambda:
+    Value:           'false'
+    Specified:       false
+  UsmLevel:
+    Value:           '1'
+    Specified:       false
+...

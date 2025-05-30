@@ -1,0 +1,42 @@
+warning: /home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.o: 'linker' input unused [-Wunused-command-line-argument]
+warning: bias_act.cuda.o: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lc10: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lc10_cuda: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_cpu: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_cuda_cu: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_cuda_cpp: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_python: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lcudart: 'linker' input unused [-Wunused-command-line-argument]
+warning: argument unused during migration: '-Wno-c++11-narrowing' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-Xclang -fcuda-allow-variadic-functions' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-D __CUDA_DOT_H_FILE_PATH__="/usr/local/cuda-12.6/targets/x86_64-linux/include/cuda.h"' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-nocudalib' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-shared' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-L/home/user/miniconda3/envs/stylegan3/lib/python3.9/site-packages/torch/lib' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-L/usr/local/cuda/lib64' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-I /usr/local/cuda-12.6/targets/x86_64-linux/include' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-fno-delayed-template-parsing' [-Wunused-command-line-argument]
+error: unable to handle migration, expected exactly one migration job in ''
+error: unknown argument: '--expt-relaxed-constexpr'
+error: unknown argument: '-gencode=arch=compute_61,code=compute_61'
+error: unknown argument: '-gencode=arch=compute_61,code=sm_61'
+error: unknown argument: '--compiler-options'
+error: unknown argument: '--use_fast_math'
+error: unknown argument: '--allow-unsupported-compiler'
+warning: CUDA version is newer than the latest supported version 12.4 [-Wunknown-cuda-version]
+/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu:24:1: warning: DPCT1110:0: The total declared local variable size in device function bias_act_kernel exceeds 128 bytes and may cause high register pressure. Consult with your hardware vendor to find the total register size available and adjust the code, or use smaller sub-group size to avoid high register pressure.
+   24 | __device__ void bias_act_kernel(bias_act_kernel_params p)
+      | ^
+/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp:89:9: warning: DPCT1049:1: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.
+   89 |         cudaLaunchKernel((void*)&bias_act_kernel_half, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream());
+      |         ^
+/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp:91:9: warning: DPCT1049:2: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.
+   91 |         cudaLaunchKernel((void*)&bias_act_kernel_float, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream());
+      |         ^
+/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp:93:9: warning: DPCT1049:3: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.
+   93 |         cudaLaunchKernel((void*)&bias_act_kernel_double, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream());
+      |         ^
+/media/user/a648b44d-0418-4c82-b172-8bd278c99e42/home/user/stylegan3/torch_utils/ops/bias_act_dpct_out_2024.2.0_55a3f034030e4bd0f36d7c37f24f8366079a639b/bias_act.h.yaml exist, try to merge it.
+Saved new version of /media/user/a648b44d-0418-4c82-b172-8bd278c99e42/home/user/stylegan3/torch_utils/ops/bias_act_dpct_out_2024.2.0_55a3f034030e4bd0f36d7c37f24f8366079a639b/bias_act.h.yaml file
+

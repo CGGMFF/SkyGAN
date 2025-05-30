@@ -1,0 +1,212 @@
+warning: /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.o: 'linker' input unused [-Wunused-command-line-argument]
+warning: filtered_lrelu_wr.cuda.o: 'linker' input unused [-Wunused-command-line-argument]
+warning: filtered_lrelu_rd.cuda.o: 'linker' input unused [-Wunused-command-line-argument]
+warning: filtered_lrelu_ns.cuda.o: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lc10: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lc10_cuda: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_cpu: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_cuda: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_python: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lcudart: 'linker' input unused [-Wunused-command-line-argument]
+warning: argument unused during migration: '-Xclang -fcuda-allow-variadic-functions' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-D __NVCC__' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-D __CUDACC_VER_MINOR__=0' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-D __CUDACC_VER_MAJOR__=12' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-nocudalib' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-I /usr/local/cuda-12.0/targets/x86_64-linux/include' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-shared' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-L/home/martin/miniconda3/envs/stylegan3_pytorch2_noipex/lib/python3.9/site-packages/torch/lib' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-L/usr/local/cuda-12.0/lib64' [-Wunused-command-line-argument]
+error: unable to handle migration, expected exactly one migration job in ''
+error: unsupported option '--expt-relaxed-constexpr'
+error: unsupported option '--compiler-options'
+error: unsupported option '--use_fast_math'
+error: unsupported option '--allow-unsupported-compiler'
+error: unknown argument: '-gencode=arch=compute_86,code=compute_86'
+error: unknown argument: '-gencode=arch=compute_86,code=sm_86'
+error: unsupported option '--expt-relaxed-constexpr'
+error: unsupported option '--compiler-options'
+error: unsupported option '--use_fast_math'
+error: unsupported option '--allow-unsupported-compiler'
+error: unknown argument: '-gencode=arch=compute_86,code=compute_86'
+error: unknown argument: '-gencode=arch=compute_86,code=sm_86'
+error: unsupported option '--expt-relaxed-constexpr'
+error: unsupported option '--compiler-options'
+error: unsupported option '--use_fast_math'
+error: unsupported option '--allow-unsupported-compiler'
+error: unknown argument: '-gencode=arch=compute_86,code=compute_86'
+error: unknown argument: '-gencode=arch=compute_86,code=sm_86'
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1236:5: warning: DPCT1049:0: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.
+    AT_CUDA_CHECK(cudaLaunchKernel((void*)&setup_filters_kernel, 1, 1024, args, 0, at::cuda::getCurrentCUDAStream()));
+    ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1257:9: warning: DPCT1049:1: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.
+        AT_CUDA_CHECK(cudaLaunchKernel((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, dim3(gx, gy, subGz), bx, args, dynamicSharedKB << 10, at::cuda::getCurrentCUDAStream()));
+        ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1279:5: warning: DPCT1049:2: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.
+    AT_CUDA_CHECK(cudaLaunchKernel((void*)&filtered_lrelu_act_kernel<T, signWrite, signRead>, dim3(gx, gy, gz), bx, args, 0, at::cuda::getCurrentCUDAStream()));
+    ^
+In file included from /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_rd.cu:9:
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:134:1: warning: DPCT1110:3: The total declared local variable size in device function filtered_lrelu_kernel exceeds 128 bytes and may cause high register pressure. Consult with your hardware vendor to find the total register size available and adjust the code, or use smaller sub-group size to avoid high register pressure.
+static __global__ void filtered_lrelu_kernel(filtered_lrelu_kernel_params p)
+^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:267:13: warning: DPCT1065:4: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+            __syncthreads();
+            ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:296:13: warning: DPCT1065:5: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+            __syncthreads();
+            ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:401:13: warning: DPCT1065:6: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+            __syncthreads();
+            ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:506:38: warning: DPCT1023:7: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s |= __shfl_xor_sync(groupMask, s, 1);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:507:38: warning: DPCT1023:8: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s |= __shfl_xor_sync(groupMask, s, 2);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:537:38: warning: DPCT1023:9: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s |= __shfl_xor_sync(groupMask, s, 1);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:538:38: warning: DPCT1023:10: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s |= __shfl_xor_sync(groupMask, s, 2);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:644:38: warning: DPCT1023:11: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s |= __shfl_xor_sync(groupMask, s, 1);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:645:38: warning: DPCT1023:12: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s |= __shfl_xor_sync(groupMask, s, 2);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:667:38: warning: DPCT1023:13: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s |= __shfl_xor_sync(groupMask, s, 1);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:668:38: warning: DPCT1023:14: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s |= __shfl_xor_sync(groupMask, s, 2);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:724:17: warning: DPCT1065:15: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+                __syncthreads();
+                ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:856:17: warning: DPCT1065:16: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+                __syncthreads();
+                ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:893:38: warning: DPCT1023:17: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s += __shfl_xor_sync(groupMask, s, 1);  // Coalesce.
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:894:38: warning: DPCT1023:18: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s += __shfl_xor_sync(groupMask, s, 2);  // Coalesce.
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:915:38: warning: DPCT1023:19: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s += __shfl_xor_sync(groupMask, s, 1);  // Coalesce.
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:916:38: warning: DPCT1023:20: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+                                s += __shfl_xor_sync(groupMask, s, 2);  // Coalesce.
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:956:13: warning: DPCT1065:21: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+            __syncthreads();
+            ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1019:13: warning: DPCT1065:22: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+            __syncthreads();
+            ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1044:17: warning: DPCT1065:23: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+                __syncthreads();
+                ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1075:17: warning: DPCT1065:24: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+                __syncthreads();
+                ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1147:18: warning: DPCT1023:25: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+            s |= __shfl_xor_sync(m, s, 1); // Distribute.
+                 ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1148:18: warning: DPCT1023:26: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+            s |= __shfl_xor_sync(m, s, 2);
+                 ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1149:18: warning: DPCT1023:27: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+            s |= __shfl_xor_sync(m, s, 4);
+                 ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1150:18: warning: DPCT1023:28: The SYCL sub-group does not support mask options for dpct::permute_sub_group_by_xor. You can specify "--use-experimental-features=masked-sub-group-operation" to use the experimental helper function to migrate __shfl_xor_sync.
+            s |= __shfl_xor_sync(m, s, 8);
+                 ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1100:1: warning: DPCT1110:29: The total declared local variable size in device function filtered_lrelu_act_kernel exceeds 128 bytes and may cause high register pressure. Consult with your hardware vendor to find the total register size available and adjust the code, or use smaller sub-group size to avoid high register pressure.
+static __global__ void filtered_lrelu_act_kernel(filtered_lrelu_act_kernel_params p)
+^
+In file included from /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_wr.cu:9:
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1236:19: warning: DPCT1007:30: Migration of cudaLaunchKernel is not supported.
+    AT_CUDA_CHECK(cudaLaunchKernel((void*)&setup_filters_kernel, 1, 1024, args, 0, at::cuda::getCurrentCUDAStream()));
+                  ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1257:23: warning: DPCT1007:31: Migration of cudaLaunchKernel is not supported.
+        AT_CUDA_CHECK(cudaLaunchKernel((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, dim3(gx, gy, subGz), bx, args, dynamicSharedKB << 10, at::cuda::getCurrentCUDAStream()));
+                      ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1279:19: warning: DPCT1007:32: Migration of cudaLaunchKernel is not supported.
+    AT_CUDA_CHECK(cudaLaunchKernel((void*)&filtered_lrelu_act_kernel<T, signWrite, signRead>, dim3(gx, gy, gz), bx, args, 0, at::cuda::getCurrentCUDAStream()));
+                  ^
+In file included from /home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu_rd.cu:9:
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1244:19: warning: DPCT1027:33: The call to cudaFuncSetCacheConfig was replaced with 0 because SYCL currently does not support configuring shared memory on devices.
+    AT_CUDA_CHECK(cudaFuncSetCacheConfig((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, cudaFuncCachePreferShared));
+                  ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1248:23: warning: DPCT1007:34: Migration of cudaFuncSetAttribute is not supported.
+        AT_CUDA_CHECK(cudaFuncSetAttribute((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, cudaFuncAttributeMaxDynamicSharedMemorySize, dynamicSharedKB << 10));
+                      ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1249:19: warning: DPCT1027:35: The call to cudaFuncSetSharedMemConfig was replaced with 0 because SYCL currently does not support configuring shared memory on devices.
+    AT_CUDA_CHECK(cudaFuncSetSharedMemConfig((void*)&filtered_lrelu_kernel<T, index_t, SH, signWrite, signRead, MODE, U, FU, D, FD, TW, TH, W*32, !!XR, !!WS>, cudaSharedMemBankSizeFourByte));
+                  ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:109:14: warning: DPCT1001:36: The statement could not be removed.
+    if (err) return err;
+             ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:109:5: warning: DPCT1000:37: Error handling if-stmt was detected but could not be rewritten.
+    if (err) return err;
+    ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1135:21: warning: DPCT1064:38: Migrated fabsf call is used in a macro/template definition and may not be valid for all macro/template uses. Adjust the code.
+                if (fabsf(v) > p.clamp)
+                    ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1199:21: warning: DPCT1064:39: Migrated fabsf call is used in a macro/template definition and may not be valid for all macro/template uses. Adjust the code.
+                if (fabsf(v) > p.clamp)
+                    ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:506:38: warning: DPCT1096:40: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s |= __shfl_xor_sync(groupMask, s, 1);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:507:38: warning: DPCT1096:41: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s |= __shfl_xor_sync(groupMask, s, 2);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:537:38: warning: DPCT1096:42: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s |= __shfl_xor_sync(groupMask, s, 1);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:538:38: warning: DPCT1096:43: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s |= __shfl_xor_sync(groupMask, s, 2);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:644:38: warning: DPCT1096:44: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s |= __shfl_xor_sync(groupMask, s, 1);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:645:38: warning: DPCT1096:45: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s |= __shfl_xor_sync(groupMask, s, 2);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:667:38: warning: DPCT1096:46: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s |= __shfl_xor_sync(groupMask, s, 1);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:668:38: warning: DPCT1096:47: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s |= __shfl_xor_sync(groupMask, s, 2);
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:893:38: warning: DPCT1096:48: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s += __shfl_xor_sync(groupMask, s, 1);  // Coalesce.
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:894:38: warning: DPCT1096:49: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s += __shfl_xor_sync(groupMask, s, 2);  // Coalesce.
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:915:38: warning: DPCT1096:50: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s += __shfl_xor_sync(groupMask, s, 1);  // Coalesce.
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:916:38: warning: DPCT1096:51: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+                                s += __shfl_xor_sync(groupMask, s, 2);  // Coalesce.
+                                     ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1147:18: warning: DPCT1096:52: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+            s |= __shfl_xor_sync(m, s, 1); // Distribute.
+                 ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1148:18: warning: DPCT1096:53: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+            s |= __shfl_xor_sync(m, s, 2);
+                 ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1149:18: warning: DPCT1096:54: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+            s |= __shfl_xor_sync(m, s, 4);
+                 ^
+/home/martin/.cache/torch_extensions/py39_cu117/filtered_lrelu_plugin/d723b4b3b82835d1bb4d83c21315f2aa-nvidia-rtx-a6000/filtered_lrelu.cu:1150:18: warning: DPCT1096:55: The right-most dimension of the work-group used in the SYCL kernel that calls this function may be less than "32". The function "dpct::permute_sub_group_by_xor" may return an unexpected result on the CPU device. Modify the size of the work-group to ensure that the value of the right-most dimension is a multiple of "32".
+            s |= __shfl_xor_sync(m, s, 8);
+                 ^
+Saved new version of /home/martin/intel_hackathon/stylegan3/torch_utils/ops/filtered_lrelu_dpct_out_2023.2.0_632fda9b21df865ea71d642b57f4490bc9eef925/filtered_lrelu.h.yaml file
+

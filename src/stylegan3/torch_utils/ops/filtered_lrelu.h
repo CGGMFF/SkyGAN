@@ -67,13 +67,21 @@ struct filtered_lrelu_act_kernel_params
     int2            sOfs;       // [ofs_x, ofs_y] - offset between upsampled data and sign tensor.
 };
 
+enum // Filter modes.
+{
+    MODE_SUSD = 0,  // Separable upsampling, separable downsampling.
+    MODE_FUSD = 1,  // Full upsampling, separable downsampling.
+    MODE_SUFD = 2,  // Separable upsampling, full downsampling.
+    MODE_FUFD = 3,  // Full upsampling, full downsampling.
+};
+
 //------------------------------------------------------------------------
 // CUDA kernel specialization.
 
 struct filtered_lrelu_kernel_spec
 {
-    void*   setup;              // Function for filter kernel setup.
-    void*   exec;               // Function for main operation.
+    //void*   setup;              // Function for filter kernel setup.
+    //void*   exec;               // Function for main operation.
     int2    tileOut;            // Width/height of launch tile.
     int     numWarps;           // Number of warps per thread block, determines launch block size.
     int     xrep;               // For processing multiple horizontal tiles per thread block.
@@ -83,8 +91,9 @@ struct filtered_lrelu_kernel_spec
 //------------------------------------------------------------------------
 // CUDA kernel selection.
 
-template <class T, class index_t, bool signWrite, bool signRead> filtered_lrelu_kernel_spec choose_filtered_lrelu_kernel(const filtered_lrelu_kernel_params& p, int sharedKB);
-template <class T, bool signWrite, bool signRead> void* choose_filtered_lrelu_act_kernel(void);
-template <bool signWrite, bool signRead> cudaError_t copy_filters(cudaStream_t stream);
+template <class T, class index_t, bool signWrite, bool signRead, int SH, int MODE, int U, int FU, int D, int FD, int TW, int TH, int W, int XR, int WS>
+    void run_filtered_lrelu_kernel(filtered_lrelu_kernel_params& p);
+template <class T, bool signWrite, bool signRead>
+    void run_filtered_lrelu_act_kernel(filtered_lrelu_act_kernel_params& p);
 
 //------------------------------------------------------------------------

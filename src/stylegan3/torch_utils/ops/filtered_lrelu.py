@@ -22,14 +22,25 @@ _plugin = None
 
 def _init():
     global _plugin
+    plugin_dir = 'filtered_lrelu_dpct_out_2023.2.0_632fda9b21df865ea71d642b57f4490bc9eef925/'
+    #plugin_dir = 'filtered_lrelu_dpct_out_2024.2.0_55a3f034030e4bd0f36d7c37f24f8366079a639b/'
     if _plugin is None:
-        _plugin = custom_ops.get_plugin(
-            module_name='filtered_lrelu_plugin',
-            sources=['filtered_lrelu.cpp', 'filtered_lrelu_wr.cu', 'filtered_lrelu_rd.cu', 'filtered_lrelu_ns.cu'],
-            headers=['filtered_lrelu.h', 'filtered_lrelu.cu'],
-            source_dir=os.path.dirname(__file__),
-            extra_cuda_cflags=['--use_fast_math'],
-        )
+        if custom_ops.using_xpu:
+            _plugin = custom_ops.get_plugin(
+                module_name='filtered_lrelu_plugin',
+                sources=[plugin_dir+'filtered_lrelu.cpp.dp.cpp', plugin_dir+'filtered_lrelu.dp.cpp', plugin_dir+'filtered_lrelu_wr.dp.cpp', plugin_dir+'filtered_lrelu_rd.dp.cpp', plugin_dir+'filtered_lrelu_ns.dp.cpp'],
+                headers=[plugin_dir+'filtered_lrelu.h', plugin_dir+'filtered_lrelu_cases.h', plugin_dir+'filtered_lrelu.cpp.dp.cpp'],
+                source_dir=os.path.dirname(__file__),
+                extra_cflags=custom_ops.get_xpu_cflags(),
+            )
+        else:
+            _plugin = custom_ops.get_plugin(
+                module_name='filtered_lrelu_plugin',
+                sources=['filtered_lrelu.cpp', 'filtered_lrelu_wr.cu', 'filtered_lrelu_rd.cu', 'filtered_lrelu_ns.cu'],
+                headers=['filtered_lrelu.h', 'filtered_lrelu_cases.h', 'filtered_lrelu.cu'],
+                source_dir=os.path.dirname(__file__),
+                extra_cuda_cflags=['--use_fast_math', '--allow-unsupported-compiler'],
+            )
     return True
 
 def _get_filter_size(f):
@@ -53,7 +64,7 @@ def _parse_padding(padding):
 
 #----------------------------------------------------------------------------
 
-def filtered_lrelu(x, fu=None, fd=None, b=None, up=1, down=1, padding=0, gain=np.sqrt(2), slope=0.2, clamp=None, flip_filter=False, impl='cuda'):
+def filtered_lrelu(x, fu=None, fd=None, b=None, up=1, down=1, padding=0, gain=np.sqrt(2), slope=0.2, clamp=None, flip_filter=False, impl='xpu'):
     r"""Filtered leaky ReLU for a batch of 2D images.
 
     Performs the following sequence of operations for each channel:
@@ -104,15 +115,16 @@ def filtered_lrelu(x, fu=None, fd=None, b=None, up=1, down=1, padding=0, gain=np
         slope:       Slope on the negative side of leaky ReLU (default: 0.2).
         clamp:       Maximum magnitude for leaky ReLU output (default: None).
         flip_filter: False = convolution, True = correlation (default: False).
-        impl:        Implementation to use. Can be `'ref'` or `'cuda'` (default: `'cuda'`).
+        impl:        Implementation to use. Can be `'ref'` or `'xpu'` (default: `'xpu'`).
 
     Returns:
         Tensor of the shape `[batch_size, num_channels, out_height, out_width]`.
     """
     assert isinstance(x, torch.Tensor)
-    assert impl in ['ref', 'cuda']
-    if impl == 'cuda' and x.device.type == 'cuda' and _init():
-        return _filtered_lrelu_cuda(up=up, down=down, padding=padding, gain=gain, slope=slope, clamp=clamp, flip_filter=flip_filter).apply(x, fu, fd, b, None, 0, 0)
+    assert impl in ['ref', 'xpu']
+    if impl == 'xpu' and _init() and x.device.type == custom_ops.device_str:
+        #print('_filtered_lrelu_xpu(up=',up,', down=',down,', padding=',padding,', gain=',gain,', slope=',slope,', clamp=',clamp,', flip_filter=',flip_filter,').apply(x=',x.shape,', fu=',fu.shape if fu is not None else None,', fd=',fd.shape if fd is not None else None,', b=',b.shape if b is not None else None,', None, 0, 0)')
+        return _filtered_lrelu_xpu(up=up, down=down, padding=padding, gain=gain, slope=slope, clamp=clamp, flip_filter=flip_filter).apply(x, fu, fd, b, None, 0, 0)
     return _filtered_lrelu_ref(x, fu=fu, fd=fd, b=b, up=up, down=down, padding=padding, gain=gain, slope=slope, clamp=clamp, flip_filter=flip_filter)
 
 #----------------------------------------------------------------------------
@@ -154,10 +166,10 @@ def _filtered_lrelu_ref(x, fu=None, fd=None, b=None, up=1, down=1, padding=0, ga
 
 #----------------------------------------------------------------------------
 
-_filtered_lrelu_cuda_cache = dict()
+_filtered_lrelu_xpu_cache = dict()
 
-def _filtered_lrelu_cuda(up=1, down=1, padding=0, gain=np.sqrt(2), slope=0.2, clamp=None, flip_filter=False):
-    """Fast CUDA implementation of `filtered_lrelu()` using custom ops.
+def _filtered_lrelu_xpu(up=1, down=1, padding=0, gain=np.sqrt(2), slope=0.2, clamp=None, flip_filter=False):
+    """Fast XPU implementation of `filtered_lrelu()` using custom ops.
     """
     assert isinstance(up, int) and up >= 1
     assert isinstance(down, int) and down >= 1
@@ -171,11 +183,11 @@ def _filtered_lrelu_cuda(up=1, down=1, padding=0, gain=np.sqrt(2), slope=0.2, cl
 
     # Lookup from cache.
     key = (up, down, px0, px1, py0, py1, gain, slope, clamp, flip_filter)
-    if key in _filtered_lrelu_cuda_cache:
-        return _filtered_lrelu_cuda_cache[key]
+    if key in _filtered_lrelu_xpu_cache:
+        return _filtered_lrelu_xpu_cache[key]
 
     # Forward op.
-    class FilteredLReluCuda(torch.autograd.Function):
+    class FilteredLReluXpu(torch.autograd.Function):
         @staticmethod
         def forward(ctx, x, fu, fd, b, si, sx, sy): # pylint: disable=arguments-differ
             assert isinstance(x, torch.Tensor) and x.ndim == 4
@@ -210,18 +222,24 @@ def _filtered_lrelu_cuda(up=1, down=1, padding=0, gain=np.sqrt(2), slope=0.2, cl
             if any(a < b for a, b in zip(strides[:-1], strides[1:])):
                 warnings.warn("low-performance memory layout detected in filtered_lrelu input", RuntimeWarning)
 
-            # Call C++/Cuda plugin if datatype is supported.
+            # Call C++/XPU plugin if datatype is supported.
             if x.dtype in [torch.float16, torch.float32]:
-                if torch.cuda.current_stream(x.device) != torch.cuda.default_stream(x.device):
-                    warnings.warn("filtered_lrelu called with non-default cuda stream but concurrent execution is not supported", RuntimeWarning)
+                if custom_ops.using_xpu:
+                    #if torch.xpu.
+                    #print('TODO check stream?')
+                    pass
+                else:
+                    if torch.cuda.current_stream(x.device) != torch.cuda.default_stream(x.device):
+                        warnings.warn("filtered_lrelu called with non-default cuda stream but concurrent execution is not supported", RuntimeWarning)
                 y, so, return_code = _plugin.filtered_lrelu(x, fu, fd, b, si, up, down, px0, px1, py0, py1, sx, sy, gain, slope, clamp, flip_filter, write_signs)
             else:
                 return_code = -1
+                print('DTYPE', x.dtype, 'NOT SUPPORTED, FALLING BACK TO upfirdn2d')
 
-            # No Cuda kernel found? Fall back to generic implementation. Still more memory efficient than the reference implementation because
+            # No XPU kernel found? Fall back to generic implementation. Still more memory efficient than the reference implementation because
             # only the bit-packed sign tensor is retained for gradient computation.
             if return_code < 0:
-                warnings.warn("filtered_lrelu called with parameters that have no optimized CUDA kernel, using generic fallback", RuntimeWarning)
+                warnings.warn("filtered_lrelu called with parameters that have no optimized XPU kernel, using generic fallback", RuntimeWarning)
 
                 y = x.add(b.unsqueeze(-1).unsqueeze(-1)) # Add bias.
                 y = upfirdn2d.upfirdn2d(x=y, f=fu, up=up, padding=[px0, px1, py0, py1], gain=up**2, flip_filter=flip_filter) # Upsample.
@@ -260,7 +278,7 @@ def _filtered_lrelu_cuda(up=1, down=1, padding=0, gain=np.sqrt(2), slope=0.2, cl
                 ff = (not flip_filter)
                 sx = sx - (fu.shape[-1] - 1) + px0
                 sy = sy - (fu.shape[0]  - 1) + py0
-                dx = _filtered_lrelu_cuda(up=down, down=up, padding=pp, gain=gg, slope=slope, clamp=None, flip_filter=ff).apply(dy, fd, fu, None, si, sx, sy)
+                dx = _filtered_lrelu_xpu(up=down, down=up, padding=pp, gain=gg, slope=slope, clamp=None, flip_filter=ff).apply(dy, fd, fu, None, si, sx, sy)
 
             if ctx.needs_input_grad[3]:
                 db = dx.sum([0, 2, 3])
@@ -268,7 +286,7 @@ def _filtered_lrelu_cuda(up=1, down=1, padding=0, gain=np.sqrt(2), slope=0.2, cl
             return dx, dfu, dfd, db, dsi, dsx, dsy
 
     # Add to cache.
-    _filtered_lrelu_cuda_cache[key] = FilteredLReluCuda
-    return FilteredLReluCuda
+    _filtered_lrelu_xpu_cache[key] = FilteredLReluXpu
+    return FilteredLReluXpu
 
 #----------------------------------------------------------------------------

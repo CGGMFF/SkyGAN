@@ -13,7 +13,6 @@ import re
 from typing import List, Optional, Tuple, Union
 
 import click
-import dnnlib
 import numpy as np
 import PIL.Image
 from secondary_channels import SecondaryChannels
@@ -22,6 +21,17 @@ import training.utils
 from training.training_loop import save_image_grid, stretch
 import training.dataset
 import training.loss
+import dnnlib
+try:
+    import intel_extension_for_pytorch as ipex
+    try_ipex_optimize = ipex.optimize
+    device_str = 'xpu'
+except:
+    print('Warning: intel_extension_for_pytorch not loaded')
+    def try_ipex_optimize(module):
+        return module
+    device_str = 'cuda'
+
 import legacy
 from training.dataset import ImageFolderDataset
 
@@ -158,8 +168,10 @@ def generate_images(
     """
 
     print('Loading networks from "%s"...' % network_pkl)
-    device = torch.device(device)
+    device = torch.device(device_str)
     E, G, D = load_nets(network_pkl, device)
+
+    G = try_ipex_optimize(G)
 
     os.makedirs(outdir, exist_ok=True)
 
@@ -193,7 +205,7 @@ def generate_images(
         # Generate images.
         for seed_idx, seed in enumerate(seeds if len(seeds) > 0 else [elevation+1000, elevation+2000, elevation+3000, elevation+4000, elevation+5000, elevation+6000, elevation+7000]): # fallback: use the elevation+1000 as seed
             print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
-            z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
+            z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(torch.float32).to(device)
 
             # Construct an inverse rotation/translation matrix and pass to the generator.  The
             # generator expects this matrix as an inverse to avoid potentially failing numerical

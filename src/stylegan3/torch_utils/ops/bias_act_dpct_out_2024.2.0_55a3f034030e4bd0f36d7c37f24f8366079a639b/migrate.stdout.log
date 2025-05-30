@@ -1,0 +1,10 @@
+Parsing: /home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu
+Parsing: /home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp
+Analyzing: /home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu
+Analyzing: /home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp
+Migrating: /home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cu
+Migrating: /home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti/bias_act.cpp
+Processed 3 file(s) in -in-root folder "/home/user/.cache/torch_extensions/bias_act_plugin/9936501c2690d15987a56ecc20fa04e5-nvidia-geforce-gtx-1080-ti"
+
+See Diagnostics Reference to resolve warnings and complete the migration:
+https://www.intel.com/content/www/us/en/docs/dpcpp-compatibility-tool/developer-guide-reference/current/diagnostics-reference.html

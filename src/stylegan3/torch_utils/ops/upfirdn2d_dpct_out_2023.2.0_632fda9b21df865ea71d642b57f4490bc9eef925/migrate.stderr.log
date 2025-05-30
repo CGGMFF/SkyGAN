@@ -1,0 +1,50 @@
+error: unsupported option '--expt-relaxed-constexpr'
+error: unsupported option '--compiler-options'
+error: unsupported option '--use_fast_math'
+error: unsupported option '--allow-unsupported-compiler'
+error: unknown argument: '-gencode=arch=compute_86,code=compute_86'
+error: unknown argument: '-gencode=arch=compute_86,code=sm_86'
+warning: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.o: 'linker' input unused [-Wunused-command-line-argument]
+warning: upfirdn2d.cuda.o: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lc10: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lc10_cuda: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_cpu: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_cuda: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch: 'linker' input unused [-Wunused-command-line-argument]
+warning: -ltorch_python: 'linker' input unused [-Wunused-command-line-argument]
+warning: -lcudart: 'linker' input unused [-Wunused-command-line-argument]
+warning: argument unused during migration: '-Xclang -fcuda-allow-variadic-functions' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-D __NVCC__' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-D __CUDACC_VER_MINOR__=0' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-D __CUDACC_VER_MAJOR__=12' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-nocudalib' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-I /usr/local/cuda-12.0/targets/x86_64-linux/include' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-shared' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-L/home/martin/miniconda3/envs/stylegan3_pytorch2_noipex/lib/python3.9/site-packages/torch/lib' [-Wunused-command-line-argument]
+warning: argument unused during migration: '-L/usr/local/cuda-12.0/lib64' [-Wunused-command-line-argument]
+error: unable to handle migration, expected exactly one migration job in ''
+/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu:242:5: warning: DPCT1049:0: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.
+    cudaLaunchKernel((void*)&upfirdn2d_kernel_large<T>, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream());
+    ^
+/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu:227:5: warning: DPCT1049:1: The work-group size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the work-group size if needed.
+    cudaLaunchKernel((void*)&upfirdn2d_kernel_small<T, upx, upy, downx, downy, filterW, filterH, tileOutW, tileOutH, loopMinor>, gridSize, blockSize, args, 0, at::cuda::getCurrentCUDAStream());
+    ^
+/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu:108:1: warning: DPCT1110:2: The total declared local variable size in device function upfirdn2d_kernel_small exceeds 128 bytes and may cause high register pressure. Consult with your hardware vendor to find the total register size available and adjust the code, or use smaller sub-group size to avoid high register pressure.
+static __global__ void upfirdn2d_kernel_small(upfirdn2d_kernel_params p)
+^
+/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu:155:13: warning: DPCT1065:3: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+            __syncthreads();
+            ^
+/home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu:173:13: warning: DPCT1065:4: Consider replacing sycl::nd_item::barrier() with sycl::nd_item::barrier(sycl::access::fence_space::local_space) for better performance if there is no access to global memory.
+            __syncthreads();
+            ^
+Replacement Conflict.
+Abandon replacement: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu: 9831:+13:"1, 1, 256"
+Replacement Conflict.
+Abandon replacement: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu: 9868:+140:"p.launchMajor, (p.outSize.x() - 1) / (tileOutW * p.loopX) + 1, ((p.outSize.y() - 1) / tileOutH + 1) * p.launchMinor"
+Replacement Conflict.
+Abandon replacement: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu: 10484:+12:"1, 32, 4"
+Replacement Conflict.
+Abandon replacement: /home/martin/.cache/torch_extensions/py39_cu117/upfirdn2d_plugin/28e73e58649aac49259dcf8fc7caddf0-nvidia-rtx-a6000/upfirdn2d.cu: 10520:+146:"p.launchMajor, (p.outSize.x() - 1) / (blockSize[1] * p.loopX) + 1, ((p.outSize.y() - 1) / blockSize[2] + 1) * p.launchMinor"
+Saved new version of /home/martin/intel_hackathon/stylegan3/torch_utils/ops/upfirdn2d_dpct_out_2023.2.0_632fda9b21df865ea71d642b57f4490bc9eef925/upfirdn2d.h.yaml file
+
