@@ -6,6 +6,7 @@ This repository contains the code for our paper [**SkyGAN: Realistic Cloud Image
 
 *SkyGAN generates cloudy sky images from a user-chosen sun position that are readily usable as an environment map in any rendering system. We leverage an existing [clear sky model](https://cgg.mff.cuni.cz/publications/skymodel-2021/) to produce the input to our neural network which enhances the sky with clouds, haze and horizons learned from real photographs.*
 
+SkyGAN runs on Intel GPUs (or other SYCL-compatible accelerators). See the *StyleGAN3 to SYCL porting* details in [this repository](https://github.com/martinmCGG/stylegan3).
 
 ## Project structure
 Important files/directories:
@@ -104,9 +105,6 @@ year = {2024}
 }
 ```
 
-## Coming soon
-SkyGAN will work on Intel GPUs (or other SYCL-compatible accelerators). See the *StyleGAN3 to SYCL porting* progress in [this repository](https://github.com/martinmCGG/stylegan3).
-
 ### TODOs
  - [x] finish usage instructions (how to run inference - copy from the PC in S126)
  - [x] test if inference still works after code cleanup
@@ -116,4 +114,3 @@ SkyGAN will work on Intel GPUs (or other SYCL-compatible accelerators). See the 
  - [x] link to dataset
  - [x] update citation when volume+number are known
  - [ ] maybe link to publication page on CGG website?
- - [ ] StyleGAN3 to SYCL porting: merge to SkyGAN when finished, maybe until then also add a guide how to merge the current version
