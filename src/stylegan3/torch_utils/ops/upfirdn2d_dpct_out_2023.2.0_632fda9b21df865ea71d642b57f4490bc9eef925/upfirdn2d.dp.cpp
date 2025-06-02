@@ -8,7 +8,13 @@
 
 #include "upfirdn2d.h"
 #include <ipex.h>
+#include <torch/extension.h>
 #include <c10/util/Half.h>
+
+#define TORCH_ATLEAST_2_3 (TORCH_VERSION_MAJOR > 2 || (TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR >= 3))
+#if TORCH_ATLEAST_2_3
+#include <c10/xpu/XPUStream.h>
+#endif
 
 //------------------------------------------------------------------------
 // Helpers.
@@ -279,10 +285,15 @@ void run_upfirdn2d_kernel_small(upfirdn2d_kernel_params p) {
     const int tileInW = ((tileOutW - 1) * downx + filterW - 1) / upx + 1;
     const int tileInH = ((tileOutH - 1) * downy + filterH - 1) / upy + 1;
 
+#if TORCH_ATLEAST_2_3
+    c10::xpu::XPUStream stream = c10::xpu::getCurrentXPUStream();
+    auto& queue = stream.queue();
+#else
     auto device_type = c10::DeviceType::XPU;
     c10::impl::VirtualGuardImpl impl(device_type);
     c10::Stream c10_stream = impl.getStream(c10::Device(device_type));
     auto& queue = xpu::get_queue_from_stream(c10_stream);
+#endif
     
     queue.submit([&](sycl::handler &cgh) {
           sycl::local_accessor<T, 2> sf_acc_ct1(
@@ -319,10 +330,15 @@ void run_upfirdn2d_kernel_large(upfirdn2d_kernel_params p, int tileOutW, int til
     */
   {
 
+    #if TORCH_ATLEAST_2_3
+    c10::xpu::XPUStream stream = c10::xpu::getCurrentXPUStream();
+    auto& queue = stream.queue();
+#else
     auto device_type = c10::DeviceType::XPU;
     c10::impl::VirtualGuardImpl impl(device_type);
     c10::Stream c10_stream = impl.getStream(c10::Device(device_type));
     auto& queue = xpu::get_queue_from_stream(c10_stream);
+#endif
 
     queue.submit([&](sycl::handler &cgh) {
 

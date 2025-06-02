@@ -34,7 +34,7 @@ try:
     import intel_extension_for_pytorch as ipex
     using_xpu = True
     cpp_extension = torch.xpu.cpp_extension
-    torch_device_specific = ipex.xpu
+    torch_device_specific = torch.xpu
     device_str = 'xpu'
 
     def build_and_load_module(name, build_directory,  *args, **kwargs):
@@ -204,7 +204,7 @@ def get_xpu_cflags():
     return [
         '-ffast-math', '-cl-fast-relaxed-math', '-I'+str(get_ops_include_path()),
         #'-O3',
-        '-O1',
+        '-O2',
         '-g', # enables VTune to show the C++ kernel source and instructions spent on each code line (rather than just assembly instructions)
         #'-gline-tables-only', # seems to only give line info for non-kernel C++ code
         '-fdebug-info-for-profiling', # https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-0/gpu-compute-media-hotspots-analysis.html

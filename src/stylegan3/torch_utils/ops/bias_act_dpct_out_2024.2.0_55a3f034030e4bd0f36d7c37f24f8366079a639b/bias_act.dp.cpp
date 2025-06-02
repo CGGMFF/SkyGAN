@@ -9,6 +9,11 @@
 #include "bias_act.h"
 #include <ipex.h>
 
+#define TORCH_ATLEAST_2_3 (TORCH_VERSION_MAJOR > 2 || (TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR >= 3))
+#if TORCH_ATLEAST_2_3
+#include <c10/xpu/XPUStream.h>
+#endif
+
 //------------------------------------------------------------------------
 // Helpers.
 
@@ -181,11 +186,16 @@ void bias_act_kernel_launch(bias_act_kernel_params p) {
     int blockSize = 4 * 32; // TODO tune, or rather remove and let the runtime choose its favorite work unit size
     int gridSize = (p.sizeX - 1) / (p.loopX * blockSize) + 1;
     
+#if TORCH_ATLEAST_2_3
+    c10::xpu::XPUStream stream = c10::xpu::getCurrentXPUStream();
+    auto& queue = stream.queue();
+#else
     auto device_type = c10::DeviceType::XPU;
     c10::impl::VirtualGuardImpl impl(device_type);
     c10::Stream c10_stream = impl.getStream(c10::Device(device_type));
     auto& queue = xpu::get_queue_from_stream(c10_stream);
-    
+#endif
+
     queue.submit([&] (sycl::handler& cgh) {
         
         AT_DISPATCH_FLOATING_TYPES_AND_HALF(p.dtype, "bias_act_xpu", [&]

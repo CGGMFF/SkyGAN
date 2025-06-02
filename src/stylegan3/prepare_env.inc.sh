@@ -12,4 +12,4 @@ export MESA_GL_VERSION_OVERRIDE=3.3
 . ~/miniconda3/etc/profile.d/conda.sh
 #conda init bash
 
-conda activate skygan_2_1_40_xpu  # the environment name should match the one in environment_intel.yml
+conda activate skygan_2_3_110_xpu  # the environment name should match the one in environment_intel.yml

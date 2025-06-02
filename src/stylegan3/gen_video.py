@@ -256,7 +256,7 @@ def generate_images(
     #architecture_name = '-'.join(network_pkl_file.split('-')[:-2])
     from torch.profiler import profile, record_function, ProfilerActivity
     with profile(activities=[
-        ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
+        ProfilerActivity.CPU, ProfilerActivity.XPU if device_str == 'xpu' else ProfilerActivity.CUDA], record_shapes=True) as prof:
         with record_function("model_inference"):
             gen_interp_video(E=E, G=G, D=D, sc=sc, elevation=elevation, azimuth=azimuth, mp4=output, bitrate='12M', grid_dims=grid, num_keyframes=num_keyframes, w_frames=w_frames, seeds=seeds, shuffle_seed=shuffle_seed, psi=truncation_psi, preheat=preheat, desc=network_pkl_file)
     print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))

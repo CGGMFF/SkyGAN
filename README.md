@@ -41,7 +41,7 @@ To get the dataset, place the following two files ([auto_processed_20230405_1727
 1. Prepare the Conda environment using our `environment_intel.yml` (or other environment we provided if you want to use the exact same package versions we did)
 ```
 conda env create -f src/stylegan3/environment_intel.yml
-source prepare_env.inc.sh  # you will need to re-run this after restart or after running a new shell
+source src/stylegan3/prepare_env.inc.sh  # you will need to re-run this after restart or after running a new shell
 ```
   - Make sure your conda is up to date with `conda update -n base conda`.
   - To avoid long waiting at "Solving Environment step", [switching to the libmamba solver](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) is advisable.

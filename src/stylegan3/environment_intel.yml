@@ -1,9 +1,12 @@
-name: skygan_2_1_40_xpu
+name: skygan_2_3_110_xpu
 channels:
+  - https://software.repos.intel.com/python/conda
   - conda-forge
 dependencies:
   - python>=3.8
   - pip
+  - pytorch=2.3.1
+  - intel-extension-for-pytorch=2.3.110
   - numpy>=1.20
   #- numpy==1.26.4
   - click>=8.0
@@ -19,15 +22,13 @@ dependencies:
   - diskcache=5.4.0
   - pybind11=2.9.2
   - pip:
-    - --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
-    - torch==2.1.0.post3
-    - torchvision==0.16.0.post3
-    - torchaudio==2.1.0.post3
-    - intel-extension-for-pytorch==2.1.40+xpu
-    - oneccl_bind_pt==2.1.400+xpu
+    # for visualiser
     - imgui==1.3.0
     - glfw==2.2.0
     - pyopengl==3.1.5
+    # for gen_video.py storing output to .mp4
     - imageio-ffmpeg==0.4.3
+    # for loading .png training datasets
     - pyspng==0.1.1
+    # for training/FID computation
     - psutil==5.9.4
